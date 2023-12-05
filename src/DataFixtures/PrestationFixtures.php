@@ -45,14 +45,14 @@ class PrestationFixtures extends Fixture implements DependentFixtureInterface
             $Prestation->setPrix(rand(10, 100));
             $Prestation->setDuree(rand(15, 180));
 
+            $this->addReference('prestation' . $i, $Prestation);
+
             $randomCategory = $categoryNames[array_rand($categoryNames)];
             $Prestation->setCategory($this->getReference('category' . $randomCategory));
-            
+
             $randomEtablissement = rand(1, 10);
             $Prestation->setEtablissement($this->getReference('etablissement' . $randomEtablissement));
             $Prestation->addEmploye($this->getReference('employe' . $randomEtablissement . 'etablissement' . $randomEtablissement));
-            
-            $this->addReference('prestation' . $i, $Prestation);
 
             $manager->persist($Prestation);
         }

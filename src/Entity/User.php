@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Put;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,22 +31,23 @@ use App\Entity\Etablissement;
     normalizationContext: ['groups' => ['user:read', 'date:read']],
     denormalizationContext: ['groups' => ['user:write', 'date:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full']]),
-        new Patch(denormalizationContext: ['groups' => ['user:write:update']]),
+        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read']]),
+        new Put(denormalizationContext: ['groups' => ['user:write:update']]),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableTrait;
-
+    
+    #[Groups(['user:read', 'etablissement:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write'])]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
@@ -62,14 +64,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
+    #[Groups(['user:read', 'user:read:full', 'user:write', 'user:write:update'])]
     #[ORM\Column]
     private ?string $password = null;
 
-    #[Groups(['user:write', 'user:write:update'])]
     #[Length(min: 6)]
     private ?string $plainPassword = null;
 
-    #[Groups(['user:read:full'])]
+    #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -86,6 +88,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?File $imageFile = null;
 
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\Column]
     private ?bool $emailVerified = false;
 
@@ -98,11 +101,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Feedback::class)]
     private Collection $feedback;
 
+    #[ORM\OneToMany(mappedBy: 'prestataire', targetEntity: DemandePrestataire::class)]
+    private Collection $validationPrestataire;
+
     public function __construct()
     {
         $this->etablissement = new ArrayCollection();
         $this->reservationsClient = new ArrayCollection();
         $this->feedback = new ArrayCollection();
+        $this->validationPrestataire = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -338,6 +345,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($feedback->getClient() === $this) {
                 $feedback->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DemandePrestataire>
+     */
+    public function getValidationPrestataire(): Collection
+    {
+        return $this->validationPrestataire;
+    }
+
+    public function addValidationPrestataire(DemandePrestataire $validationPrestataire): static
+    {
+        if (!$this->validationPrestataire->contains($validationPrestataire)) {
+            $this->validationPrestataire->add($validationPrestataire);
+            $validationPrestataire->setPrestataire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeValidationPrestataire(DemandePrestataire $validationPrestataire): static
+    {
+        if ($this->validationPrestataire->removeElement($validationPrestataire)) {
+            // set the owning side to null (unless already changed)
+            if ($validationPrestataire->getPrestataire() === $this) {
+                $validationPrestataire->setPrestataire(null);
             }
         }
 

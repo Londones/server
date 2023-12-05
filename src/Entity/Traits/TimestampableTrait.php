@@ -17,7 +17,7 @@ trait TimestampableTrait {
     private ?\DateTime $createdAt = null;
 
     #[ApiFilter(DateFilter::class)]
-    #[Groups(['date:write'])]
+    #[Groups(['date:read', 'date:write'])]
     #[ORM\Column(options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Timestampable(on: 'update')]
     private ?\DateTime $updatedAt = null;

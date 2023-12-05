@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use Doctrine\DBAL\Types\Types;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,13 +19,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['category:read']],
+    normalizationContext: ['groups' => ['category:read', 'date:read']],
     denormalizationContext: ['groups' => ['category:write']],
     operations: [
         new GetCollection(),
         new Post(),
         new Get(),
-        new Patch(),
+        new Put(),
         new Delete(),
     ]
 )]
@@ -31,6 +33,7 @@ class Category
 {
     use TimestampableTrait;
 
+    #[Groups(['category:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
