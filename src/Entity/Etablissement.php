@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -26,11 +27,7 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
         new Post(denormalizationContext: ['groups' => ['etablissement:update', 'etablissement:create']]),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
         new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
-        // 'etablissement' => [
-        //     'method' => 'get',
-        //     'path' => 'etablissement/{id}',
-        //     'normalization_context' => ['groups' => ['etablissement:read:public']],
-        // ],
+        new Delete(),
     ]
 )]
 class Etablissement

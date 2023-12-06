@@ -35,7 +35,7 @@ use App\Entity\Etablissement;
         new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
         new Post(),
         new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read']]),
-        new Put(denormalizationContext: ['groups' => ['user:write:update']]),
+        new Patch(),
         new Delete(),
     ]
 )]
