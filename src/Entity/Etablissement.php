@@ -25,12 +25,11 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
         new Post(denormalizationContext: ['groups' => ['etablissement:update', 'etablissement:create']]),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
+        new Get(
+            uriTemplate: '/etablissementPublic/{id}',
+            normalizationContext: ['groups' => ['etablissement:read:public']]
+        ),
         new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
-        // 'etablissement' => [
-        //     'method' => 'get',
-        //     'path' => 'etablissement/{id}',
-        //     'normalization_context' => ['groups' => ['etablissement:read:public']],
-        // ],
     ]
 )]
 class Etablissement
@@ -84,6 +83,12 @@ class Etablissement
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: ImageEtablissement::class)]
     #[Groups(['etablissement:read:public'])]
     private ?Collection $imageEtablissements = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $latitude = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $longitude = null;
 
     public function __construct()
     {
@@ -267,6 +272,30 @@ class Etablissement
                 $imageEtablissement->setEtablissement(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(float $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(float $longitude): static
+    {
+        $this->longitude = $longitude;
 
         return $this;
     }
