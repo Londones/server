@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Put;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,7 +10,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use App\Entity\Traits\TimestampableTrait;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -29,12 +30,13 @@ use App\Entity\Etablissement;
 #[Vich\Uploadable]
 #[ApiResource(
     normalizationContext: ['groups' => ['user:read', 'date:read']],
-    denormalizationContext: ['groups' => ['user:write', 'date:write']],
+    denormalizationContext: ['groups' => ['user:write', 'user:write:update', 'date:write']],
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
         new Post(),
         new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read']]),
-        new Put(denormalizationContext: ['groups' => ['user:write:update']]),
+        new Patch(),
+        new Delete(),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -69,6 +71,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Length(min: 6)]
+    #[Groups(['user:read', 'user:read:full', 'user:write', 'user:write:update'])]
     private ?string $plainPassword = null;
 
     #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]
@@ -164,15 +167,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlainPassword(): string
+    public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
 
-    public function setPlainPassword(string $plainPassword): void
+    public function setPlainPassword(?string $plainPassword): User
     {
         $this->plainPassword = $plainPassword;
         $this->password = $plainPassword;
+
+        return $this;
     }
     /**
      * A visual identifier that represents this user.
