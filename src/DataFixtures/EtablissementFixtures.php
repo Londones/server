@@ -32,6 +32,34 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
             "28 Rue Myrha, 75018 Paris"
         ];
 
+        $villes = [
+            "Paris",
+            "Paris",
+            "Paris",
+            "Paris",
+            "Paris",
+            "Paris",
+            "Paris",
+            "Paris",
+            "Levallois-Perret",
+            "Paris",
+            "Paris"
+        ];
+
+        $codesPostaux = [
+            "75012",
+            "75011",
+            "75012",
+            "75015",
+            "75003",
+            "75002",
+            "75010",
+            "75008",
+            "92300",
+            "75018",
+            "75018"
+        ];
+
         $lats = [
             48.8428732,
             48.8643964,
@@ -111,6 +139,8 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
             $etablissement->setJoursOuverture("Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche");
             $etablissement->setLatitude($lats[$i - 1]);
             $etablissement->setLongitude($lngs[$i - 1]);
+            $etablissement->setVille($villes[$i - 1]);
+            $etablissement->setCodePostal($codesPostaux[$i - 1]);
 
 
             for ($j = 1; $j <= 10; $j++) {
