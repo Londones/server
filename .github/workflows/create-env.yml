@@ -13,17 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Generate env file
-        uses: SpicyPizza/create-envfile@v2.0.2
+        uses: ozaytsev86/create-env-file@v1
         with:
-          envkey_APP_ENV: ${{ secrets.APP_ENV }}
-          envkey_APP_SECRET: ${{ secrets.APP_SECRET }}
-          envkey_MESSENGER_TRANSPORT_DSN: ${{ secrets.MESSENGER_TRANSPORT_DSN }}
-          envkey_CORS_ALLOW_ORIGIN: ${{ secrets.CORS_ALLOW_ORIGIN }}
-          envkey_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          envkey_JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          envkey_JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
-          envkey_JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
-          envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          file_name: .env
+          INPUT_ENV_APP_ENV: ${{ secrets.APP_ENV }}
+          INPUT_ENV_APP_SECRET: ${{ secrets.APP_SECRET }}
+          INPUT_ENV_MESSENGER_TRANSPORT_DSN: ${{ secrets.MESSENGER_TRANSPORT_DSN }}
+          INPUT_ENV_CORS_ALLOW_ORIGIN: ${{ secrets.CORS_ALLOW_ORIGIN }}
+          INPUT_ENV_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          INPUT_ENV_JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          INPUT_ENV_JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+          INPUT_ENV_JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+          INPUT_ENV_DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - run: sudo chown -R $(id -u):$(id -g) .env
