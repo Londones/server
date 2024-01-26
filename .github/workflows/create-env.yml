@@ -14,4 +14,4 @@ jobs:
       - name: Generate env file
         run: |
           touch .env
-          echo "${{ secrets.HELLO }}" > .env
+          echo "hello" > .env
