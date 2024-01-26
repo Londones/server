@@ -7,12 +7,11 @@ on:
     branches: ["deployment"]
 
 jobs:
-  build:
+  create-env:
+    name: Create env file
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-
       - name: Generate env file
         uses: SpicyPizza/create-envfile@v2.0.2
         with:
@@ -25,3 +24,6 @@ jobs:
           envkey_JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
           envkey_JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
           envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          file_name: .env
+
+      - run: sudo chown -R $(id -u):$(id -g) .env
