@@ -24,6 +24,10 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
     denormalizationContext: ['groups' => 'etablissement:write'],
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
+        new GetCollection(
+            uriTemplate: '/etablissementsList',
+            normalizationContext: ['groups' => ['etablissement:read:list']]
+        ),
         new Post(denormalizationContext: ['groups' => ['etablissement:update', 'etablissement:create']]),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
         new Get(
@@ -91,6 +95,12 @@ class Etablissement
 
     #[ORM\Column(nullable: true)]
     private ?float $longitude = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ville = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $codePostal = null;
 
     public function __construct()
     {
@@ -298,6 +308,30 @@ class Etablissement
     public function setLongitude(float $longitude): static
     {
         $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getVille(): ?string
+    {
+        return $this->ville;
+    }
+
+    public function setVille(string $ville): static
+    {
+        $this->ville = $ville;
+
+        return $this;
+    }
+
+    public function getCodePostal(): ?string
+    {
+        return $this->codePostal;
+    }
+
+    public function setCodePostal(string $codePostal): static
+    {
+        $this->codePostal = $codePostal;
 
         return $this;
     }
