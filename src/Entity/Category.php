@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(),
         new Post(),
         new Get(),
-        new Put(),
+        new Patch(),
         new Delete(),
     ]
 )]

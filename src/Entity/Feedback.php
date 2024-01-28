@@ -6,6 +6,8 @@ use App\Entity\Prestation;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FeedbackRepository;
@@ -54,9 +56,14 @@ class Feedback
     #[ORM\Column]
     private ?int $note_globale = null;
 
+    #[ORM\OneToMany(mappedBy: 'feedback', targetEntity: Critere::class)]
     #[Groups(['etablissement:read:public'])]
-    #[ORM\Column]
-    private array $notes = [];
+    private Collection $criteres;
+
+    public function __construct()
+    {
+        $this->criteres = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -100,14 +107,32 @@ class Feedback
         return $this;
     }
 
-    public function getNotes(): array
+    /**
+     * @return Collection<int, Critere>
+     */
+    public function getCriteres(): Collection
     {
-        return $this->notes;
+        return $this->criteres;
     }
 
-    public function setNotes(array $notes): static
+    public function addCritere(Critere $critere): static
     {
-        $this->notes = $notes;
+        if (!$this->criteres->contains($critere)) {
+            $this->criteres->add($critere);
+            $critere->setFeedback($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCritere(Critere $critere): static
+    {
+        if ($this->criteres->removeElement($critere)) {
+            // set the owning side to null (unless already changed)
+            if ($critere->getFeedback() === $this) {
+                $critere->setFeedback(null);
+            }
+        }
 
         return $this;
     }
