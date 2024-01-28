@@ -96,10 +96,10 @@ class Etablissement
     #[ORM\Column(nullable: true)]
     private ?float $longitude = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $ville = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $codePostal = null;
 
     public function __construct()
