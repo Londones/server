@@ -71,11 +71,9 @@ class Employe
     #[ORM\JoinColumn(nullable: false)]
     private ?Etablissement $etablissement = null;
 
+    #[Groups(['employe:read'])]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
     private Collection $prestation;
-
-    #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Prestation::class)]
-    private Collection $prestations;
 
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Reservation::class)]
     private Collection $reservationsEmploye;
@@ -84,7 +82,6 @@ class Employe
     public function __construct()
     {
         $this->prestation = new ArrayCollection();
-        $this->prestations = new ArrayCollection();
         $this->reservationsEmploye = new ArrayCollection();
     }
 
@@ -199,14 +196,6 @@ class Employe
         $this->prestation->removeElement($prestation);
 
         return $this;
-    }
-
-    /**
-     * @return Collection<int, Prestation>
-     */
-    public function getPrestations(): Collection
-    {
-        return $this->prestations;
     }
 
     /**

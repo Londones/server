@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public']]),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read']]),
         new Patch(),
         new Delete(),
     ]
@@ -71,6 +71,7 @@ class Prestation
     #[ORM\JoinColumn(nullable: false)]
     private ?Etablissement $etablissement = null;
 
+    #[Groups(['prestation:read'])]
     #[ORM\ManyToMany(targetEntity: Employe::class, mappedBy: 'prestation')]
     private Collection $employes;
 
@@ -251,4 +252,5 @@ class Prestation
 
         return $this;
     }
+
 }
