@@ -19,6 +19,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ApiResource(
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read']]),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read'],  "enable_max_depth"=>"true"]),
         new Patch(),
         new Delete(),
     ]
@@ -41,7 +42,7 @@ class Prestation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'prestation:read'])]
     private ?int $id = null;
 
     #[ApiFilter(CustomSearchFilter::class)]
@@ -73,6 +74,7 @@ class Prestation
 
     #[Groups(['prestation:read'])]
     #[ORM\ManyToMany(targetEntity: Employe::class, mappedBy: 'prestation')]
+    #[MaxDepth(1)]
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Reservation::class)]

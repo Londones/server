@@ -16,16 +16,17 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
 #[ApiResource(
-    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public']],
+    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read']],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public']]),
+        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"]),
         new Patch(denormalizationContext: ['groups' => ['employe:update']]),
     ]
 )]
@@ -36,6 +37,7 @@ class Employe
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['prestation:read'])]
     private ?int $id = null;
 
     #[Groups(['employe:read', 'employe:update', 'etablissement:read:public'])]
@@ -71,18 +73,25 @@ class Employe
     #[ORM\JoinColumn(nullable: false)]
     private ?Etablissement $etablissement = null;
 
+    
     #[Groups(['employe:read'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
     private Collection $prestation;
 
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Reservation::class)]
     private Collection $reservationsEmploye;
+   
+    #[Groups(['employe:read'])]
+    #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Indisponibilite::class)]
+    private Collection $indisponibilites;
 
 
     public function __construct()
     {
         $this->prestation = new ArrayCollection();
         $this->reservationsEmploye = new ArrayCollection();
+        $this->indisponibilites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -222,6 +231,36 @@ class Employe
             // set the owning side to null (unless already changed)
             if ($reservationsEmploye->getEmploye() === $this) {
                 $reservationsEmploye->setEmploye(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Indisponibilite>
+     */
+    public function getIndisponibilites(): Collection
+    {
+        return $this->indisponibilites;
+    }
+
+    public function addIndisponibilite(Indisponibilite $indisponibilite): static
+    {
+        if (!$this->indisponibilites->contains($indisponibilite)) {
+            $this->indisponibilites->add($indisponibilite);
+            $indisponibilite->setEmploye($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIndisponibilite(Indisponibilite $indisponibilite): static
+    {
+        if ($this->indisponibilites->removeElement($indisponibilite)) {
+            // set the owning side to null (unless already changed)
+            if ($indisponibilite->getEmploye() === $this) {
+                $indisponibilite->setEmploye(null);
             }
         }
 
