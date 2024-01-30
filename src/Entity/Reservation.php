@@ -12,9 +12,10 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Traits\TimestampableTrait;
 use App\Repository\ReservationRepository;
-use PHPUnit\TextUI\XmlConfiguration\Group;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
+#[ORM\Table(name: '`reservation`')]
 #[ApiResource(
     normalizationContext: ['groups' => ['reservation:read', 'date:read']],
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
@@ -35,26 +36,26 @@ class Reservation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Group(['reservation:read'])]
+    #[Groups(['reservation:read', 'reservation:write'])]
     #[ORM\ManyToOne(inversedBy: 'reservationsClient')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
-    #[Group(['reservation:read', 'reservation:update'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateTime = null;
 
-    #[Group(['reservation:read'])]
+    #[Groups(['reservation:read', 'reservation:write'])]
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Prestation $prestation = null;
 
-    #[Group(['reservation:read'])]
+    #[Groups(['reservation:read', 'reservation:write'])]
     #[ORM\ManyToOne(inversedBy: 'reservationsEmploye')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Employe $employe = null;
 
-    #[Group(['reservation:read', 'reservation:update'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
