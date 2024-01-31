@@ -41,12 +41,12 @@ use App\Entity\Etablissement;
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
     
-    #[Groups(['user:read', 'etablissement:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read', 'etablissement:read'])]
     private ?int $id = null;
 
     #[Groups(['user:read', 'user:write:update', 'user:write'])]

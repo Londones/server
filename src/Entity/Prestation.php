@@ -37,7 +37,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes.nom'])]
 class Prestation
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
