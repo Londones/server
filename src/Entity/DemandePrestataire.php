@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use App\Entity\Traits\TimestampableTrait;
@@ -18,6 +19,7 @@ use App\Entity\Traits\TimestampableTrait;
     denormalizationContext: ['groups' => 'demande:update'],
     operations: [
         new GetCollection(),
+        new Post(),
         new Get(),
         new Patch(),
         new Delete(),
@@ -39,7 +41,7 @@ class DemandePrestataire
 
     #[ORM\Column]
     #[Groups(['demande:update'])]
-    private ?bool $statut = false;
+    private ?string $statut = null;
 
     public function getId(): ?int
     {
@@ -58,12 +60,12 @@ class DemandePrestataire
         return $this;
     }
 
-    public function isStatut(): ?bool
+    public function getStatut(): ?string
     {
         return $this->statut;
     }
 
-    public function setStatut(bool $statut): static
+    public function setStatut(?string $statut): static
     {
         $this->statut = $statut;
 
