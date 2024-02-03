@@ -66,12 +66,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Groups(['user:read', 'user:read:full', 'user:write', 'user:write:update'])]
+    #[Groups(['user:read:full', 'user:write', 'user:write:update'])]
     #[ORM\Column]
     private ?string $password = null;
 
     #[Length(min: 6)]
-    #[Groups(['user:read', 'user:read:full', 'user:write', 'user:write:update'])]
+    #[Groups(['user:read:full', 'user:write', 'user:write:update'])]
     private ?string $plainPassword = null;
 
     #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]
@@ -98,6 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'prestataire', targetEntity: Etablissement::class)]
     private Collection $etablissement;
 
+    #[Groups(['user:read'])]
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Reservation::class)]
     private Collection $reservationsClient;
 

@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read'],  "enable_max_depth"=>"true"]),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read'],  "enable_max_depth"=>"true"]),
         new Patch(),
         new Delete(),
     ]
@@ -47,19 +47,19 @@ class Prestation
 
     #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $titre = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $duree = null;
 
-    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prix = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 

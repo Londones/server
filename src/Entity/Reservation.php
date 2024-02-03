@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => 'reservation:read']),
+        new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
         new Patch(denormalizationContext: ['groups'=> 'reservation:update']),
         new Delete(),
     ]
@@ -41,29 +41,29 @@ class Reservation
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
-    #[Groups(['reservation:read', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:write', 'user:read'])]
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Prestation $prestation = null;
 
-    #[Groups(['reservation:read', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:write', 'user:read'])]
     #[ORM\ManyToOne(inversedBy: 'reservationsEmploye')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Employe $employe = null;
 
-    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
-    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $creneau = null;
 
-    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(nullable: true)]
     private ?int $duree = null;
 
-    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jour = null;
 
