@@ -22,14 +22,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => 'reservation:read']),
+        new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
         new Patch(denormalizationContext: ['groups'=> 'reservation:update']),
         new Delete(),
     ]
 )]
 class Reservation
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -41,23 +41,31 @@ class Reservation
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
-    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $dateTime = null;
-
-    #[Groups(['reservation:read', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:write', 'user:read'])]
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Prestation $prestation = null;
 
-    #[Groups(['reservation:read', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:write', 'user:read'])]
     #[ORM\ManyToOne(inversedBy: 'reservationsEmploye')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Employe $employe = null;
 
-    #[Groups(['reservation:read', 'reservation:update', 'reservation:write'])]
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(length: 255)]
     private ?string $status = null;
+
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $creneau = null;
+
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
+    #[ORM\Column(nullable: true)]
+    private ?int $duree = null;
+
+    #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $jour = null;
 
     public function getId(): ?int
     {
@@ -72,18 +80,6 @@ class Reservation
     public function setClient(?User $client): static
     {
         $this->client = $client;
-
-        return $this;
-    }
-
-    public function getDateTime(): ?\DateTimeInterface
-    {
-        return $this->dateTime;
-    }
-
-    public function setDateTime(\DateTimeInterface $dateTime): static
-    {
-        $this->dateTime = $dateTime;
 
         return $this;
     }
@@ -120,6 +116,42 @@ class Reservation
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getCreneau(): ?string
+    {
+        return $this->creneau;
+    }
+
+    public function setCreneau(?string $creneau): static
+    {
+        $this->creneau = $creneau;
+
+        return $this;
+    }
+
+    public function getDuree(): ?int
+    {
+        return $this->duree;
+    }
+
+    public function setDuree(?int $duree): static
+    {
+        $this->duree = $duree;
+
+        return $this;
+    }
+
+    public function getJour(): ?string
+    {
+        return $this->jour;
+    }
+
+    public function setJour(?string $jour): static
+    {
+        $this->jour = $jour;
 
         return $this;
     }
