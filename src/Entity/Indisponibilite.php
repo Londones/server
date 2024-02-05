@@ -14,12 +14,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: IndisponibiliteRepository::class)]
 #[ApiResource (
-    normalizationContext: ['groups' => ['indisponibilite:read', 'employe:read']],
-    denormalizationContext: ['groups' => ['indisponibilite:write']],
+    normalizationContext: ['groups' => ['indisponibilite:read', 'employe:read'], "enable_max_depth" => "true"],
+    denormalizationContext: ['groups' => ['indisponibilite:write'], "enable_max_depth" => "true"],
     operations: [
         new GetCollection(),
         new Post(),
         new Get(),
+        new Delete()
     ]
 )]
 class Indisponibilite
@@ -30,15 +31,15 @@ class Indisponibilite
     #[Groups(['indisponibilite:read', 'employe:read'])]
     private ?int $id = null;
 
-    #[Groups(['indisponibilite:read'])]
+    #[Groups(['indisponibilite:read', 'indisponibilite:write'])]
     #[ORM\ManyToOne(inversedBy: 'indisponibilites')]
     private ?Employe $employe = null;
 
-    #[Groups(['indisponibilite:read', 'employe:read'])]
+    #[Groups(['indisponibilite:read', 'employe:read', 'indisponibilite:write', ])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $creneau = null;
 
-    #[Groups(['indisponibilite:read', 'employe:read'])]
+    #[Groups(['indisponibilite:read', 'employe:read', 'indisponibilite:write'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jour = null;
 
