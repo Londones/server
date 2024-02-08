@@ -63,7 +63,7 @@ class Prestation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'prestation:read'])]
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
