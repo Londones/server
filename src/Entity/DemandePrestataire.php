@@ -40,7 +40,7 @@ class DemandePrestataire
     private ?User $prestataire = null;
 
     #[ORM\Column]
-    #[Groups(['demande:update'])]
+    #[Groups(['demande:read', 'demande:update'])]
     private ?string $statut = null;
 
     public function getId(): ?int

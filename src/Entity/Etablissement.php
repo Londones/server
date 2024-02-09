@@ -40,16 +40,16 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 )]
 class Etablissement
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read'])]
+    #[Groups(['etablissement:read', 'prestation:write', 'prestation:write'])]
     private ?int $id = null;
 
     #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'prestation:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 

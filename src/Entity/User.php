@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Attribute;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -34,11 +35,12 @@ use App\Entity\Etablissement;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read']]),
+        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]),
         new Patch(),
         new Delete(),
     ]
 )]
+#[ApiResource(paginationEnabled: false)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimestampableTrait;
@@ -53,12 +55,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;

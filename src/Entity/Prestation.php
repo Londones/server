@@ -23,18 +23,19 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public']],
-    denormalizationContext: ['groups' => ['prestation:write', 'date:write']],
+    normalizationContext: ['groups' => ['prestation:read', 'etablissement:read:public'], "enable_max_depth"=>"true"],
+    denormalizationContext: ['groups' => ['prestation:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read'],  "enable_max_depth"=>"true"]),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
         new Patch(),
         new Delete(),
     ]
 )]
 #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes'])]
 #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes.nom'])]
+#[ApiResource(paginationEnabled: false)]
 class Prestation
 {
     use TimestampableTrait;
@@ -63,16 +64,17 @@ class Prestation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'prestation:read', 'prestation:write'])]
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
 
+    #[Groups(['prestation:read', 'prestation:write'])]
     #[ORM\ManyToOne(inversedBy: 'prestation')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Etablissement $etablissement = null;
 
-    #[Groups(['prestation:read'])]
+    // #[Groups(['prestation:read'])]
     #[ORM\ManyToMany(targetEntity: Employe::class, mappedBy: 'prestation')]
     #[MaxDepth(1)]
     private Collection $employes;
@@ -80,7 +82,7 @@ class Prestation
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Reservation::class)]
     private Collection $reservations;
 
-    #[Groups(['etablissement:read:public'])]
+    // #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     private Collection $feedback;
 
