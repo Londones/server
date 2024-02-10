@@ -11,7 +11,6 @@ use App\Repository\EmployeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Traits\TimestampableTrait;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -32,7 +31,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 )]
 class Employe
 {
-    // use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
