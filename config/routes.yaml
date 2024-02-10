@@ -1,12 +1,16 @@
 api_login_route:
-    path: /api/login
-    methods: ['POST']
+  path: /api/login
+  methods: ["POST"]
 
 api_refresh_token:
-    path: /api/token/refresh
-    
+  path: /api/token/refresh
+
+api_translations_get:
+  path: /api/translations/{language}
+  methods: GET
+
 controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
-    type: attribute
+  resource:
+    path: ../src/Controller/
+    namespace: App\Controller
+  type: attribute
