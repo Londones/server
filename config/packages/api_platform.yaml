@@ -14,3 +14,5 @@ api_platform:
              JWT:
                 name: Authorization
                 type: header
+  
+    

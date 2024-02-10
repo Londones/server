@@ -22,3 +22,8 @@ extension=php_sodium.dll
 ```
 choco install openssl
 ```
+
+## create database
+```
+php bin/console doctrine:database:create
+```

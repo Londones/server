@@ -10,8 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FeedbackRepository;
 use ApiPlatform\Metadata\GetCollection;
-use App\Entity\Traits\TimestampableTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 #[ApiResource(
@@ -23,40 +24,45 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 
 #[ApiResource(
-    normalizationContext: ['groups' => ['feedback:read', 'etablissement:read:public']],
+    normalizationContext: ['groups' => ['feedback:read', 'etablissement:read:public', 'prestation:read']],
     denormalizationContext: ['groups' => ['feedback:write']],
     operations: [
-        new GetCollection(),
-        new Post(),
-        new Get(),
+        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new Post(normalizationContext: ['groups' => 'prestation:read']),
+        new Get(normalizationContext:["enable_max_depth" => "true"]),
     ]
 )]
+
 class Feedback
 {
-    use TimestampableTrait;
-
+    #[Groups(['feedback:read', 'prestation:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['feedback:read', 'feedback:write'])]
+    #[Groups(['feedback:read', 'feedback:write', 'prestation:read'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'feedback')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
     #[Groups(['feedback:read', 'feedback:write'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'feedback')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Prestation $prestation = null;
 
-    #[Groups(['feedback:read', 'feedback:write', 'etablissement:read:public'])]
-    #[ORM\Column]
-    private ?int $note_globale = null;
+    #[Groups(['feedback:read', 'feedback:write', 'prestation:read'])]
+    #[ORM\ManyToOne(inversedBy: 'feedbacks')]
+    #[MaxDepth(1)]
+    private ?Critere $critere = null;
 
-    #[Groups(['etablissement:read:public'])]
-    #[ORM\Column]
-    private array $notes = [];
+    #[Groups(['feedback:read', 'feedback:write', 'prestation:read'])]
+    #[ORM\ManyToOne(inversedBy: 'feedbacks')]
+    #[ORM\Column(nullable: true)]
+    private ?int $note = null;
+
 
     public function getId(): ?int
     {
@@ -88,27 +94,28 @@ class Feedback
         return $this;
     }
 
-    public function getNoteGlobale(): ?int
+    public function getCritere(): ?Critere
     {
-        return $this->note_globale;
+        return $this->critere;
     }
 
-    public function setNoteGlobale(int $note_globale): static
+    public function setCritere(?Critere $critere): static
     {
-        $this->note_globale = $note_globale;
+        $this->critere = $critere;
 
         return $this;
     }
 
-    public function getNotes(): array
+    public function getNote(): ?int
     {
-        return $this->notes;
+        return $this->note;
     }
 
-    public function setNotes(array $notes): static
+    public function setNote(?int $note): static
     {
-        $this->notes = $notes;
+        $this->note = $note;
 
         return $this;
     }
+
 }

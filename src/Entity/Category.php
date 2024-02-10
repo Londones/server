@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use Doctrine\DBAL\Types\Types;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,7 +23,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(),
         new Post(),
         new Get(),
-        new Put(),
+        new Patch(),
         new Delete(),
     ]
 )]
@@ -47,10 +45,16 @@ class Category
     #[Groups(['category:read'])]
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Prestation::class)]
     private Collection $prestations;
+    
+    #[Groups(['category:read'])]
+    #[ORM\ManyToMany(targetEntity: Critere::class, inversedBy: 'categories')]
+    private Collection $criteres;
+
 
     public function __construct()
     {
         $this->prestations = new ArrayCollection();
+        $this->criteres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,4 +103,29 @@ class Category
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Critere>
+     */
+    public function getCriteres(): Collection
+    {
+        return $this->criteres;
+    }
+
+    public function addCritere(Critere $critere): static
+    {
+        if (!$this->criteres->contains($critere)) {
+            $this->criteres->add($critere);
+        }
+
+        return $this;
+    }
+
+    public function removeCritere(Critere $critere): static
+    {
+        $this->criteres->removeElement($critere);
+
+        return $this;
+    }
+
 }

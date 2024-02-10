@@ -19,16 +19,18 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
+#[ORM\Table(name: '`prestation`')]
 #[ApiResource(
     normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public']],
-    denormalizationContext: ['groups' => ['prestation:write', 'date:write']],
+    denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
         new GetCollection(),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public']]),
-        new Patch(),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read'],  "enable_max_depth"=>"true"]),
+        new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
         new Delete(),
     ]
 )]
@@ -36,33 +38,33 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes.nom'])]
 class Prestation
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'prestation:read'])]
     private ?int $id = null;
 
     #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $titre = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $duree = null;
 
-    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prix = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'prestation:read'])]
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
@@ -71,7 +73,9 @@ class Prestation
     #[ORM\JoinColumn(nullable: false)]
     private ?Etablissement $etablissement = null;
 
+    #[Groups(['prestation:read'])]
     #[ORM\ManyToMany(targetEntity: Employe::class, mappedBy: 'prestation')]
+    #[MaxDepth(1)]
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Reservation::class)]
@@ -80,6 +84,10 @@ class Prestation
     #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     private Collection $feedback;
+  
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $note_generale = null;
 
     public function __construct()
     {
@@ -251,4 +259,17 @@ class Prestation
 
         return $this;
     }
+
+    public function getNoteGenerale(): ?string
+    {
+        return $this->note_generale;
+    }
+
+    public function setNoteGenerale(?string $note_generale): static
+    {
+        $this->note_generale = $note_generale;
+
+        return $this;
+    }
+
 }

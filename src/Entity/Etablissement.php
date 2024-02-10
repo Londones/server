@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -23,14 +24,18 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
     denormalizationContext: ['groups' => 'etablissement:write'],
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
+        new GetCollection(
+            uriTemplate: '/etablissementsList',
+            normalizationContext: ['groups' => ['etablissement:read:list']]
+        ),
         new Post(denormalizationContext: ['groups' => ['etablissement:update', 'etablissement:create']]),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
+        new Get(
+            uriTemplate: '/etablissementPublic/{id}',
+            normalizationContext: ['groups' => ['etablissement:read:public']]
+        ),
         new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
-        // 'etablissement' => [
-        //     'method' => 'get',
-        //     'path' => 'etablissement/{id}',
-        //     'normalization_context' => ['groups' => ['etablissement:read:public']],
-        // ],
+        new Delete(),
     ]
 )]
 class Etablissement
@@ -84,6 +89,18 @@ class Etablissement
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: ImageEtablissement::class)]
     #[Groups(['etablissement:read:public'])]
     private ?Collection $imageEtablissements = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $latitude = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $longitude = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ville = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $codePostal = null;
 
     public function __construct()
     {
@@ -267,6 +284,54 @@ class Etablissement
                 $imageEtablissement->setEtablissement(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(float $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(float $longitude): static
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    public function getVille(): ?string
+    {
+        return $this->ville;
+    }
+
+    public function setVille(string $ville): static
+    {
+        $this->ville = $ville;
+
+        return $this;
+    }
+
+    public function getCodePostal(): ?string
+    {
+        return $this->codePostal;
+    }
+
+    public function setCodePostal(string $codePostal): static
+    {
+        $this->codePostal = $codePostal;
 
         return $this;
     }
