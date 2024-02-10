@@ -24,24 +24,24 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 )]
 
 #[ApiResource(
-    normalizationContext: ['groups' => ['feedback:read', 'etablissement:read:public']],
+    normalizationContext: ['groups' => ['feedback:read', 'etablissement:read:public', 'prestation:read']],
     denormalizationContext: ['groups' => ['feedback:write']],
     operations: [
-        new GetCollection(),
-        new Post(),
+        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new Post(normalizationContext: ['groups' => 'prestation:read']),
         new Get(normalizationContext:["enable_max_depth" => "true"]),
     ]
 )]
 
 class Feedback
 {
-    #[Groups(['feedback:read'])]
+    #[Groups(['feedback:read', 'prestation:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(['feedback:read', 'feedback:write'])]
+    #[Groups(['feedback:read', 'feedback:write', 'prestation:read'])]
     #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'feedback')]
     #[ORM\JoinColumn(nullable: false)]
@@ -53,12 +53,12 @@ class Feedback
     #[ORM\JoinColumn(nullable: false)]
     private ?Prestation $prestation = null;
 
-    #[Groups(['feedback:read', 'feedback:write'])]
+    #[Groups(['feedback:read', 'feedback:write', 'prestation:read'])]
     #[ORM\ManyToOne(inversedBy: 'feedbacks')]
     #[MaxDepth(1)]
     private ?Critere $critere = null;
 
-    #[Groups(['feedback:read', 'feedback:write'])]
+    #[Groups(['feedback:read', 'feedback:write', 'prestation:read'])]
     #[ORM\ManyToOne(inversedBy: 'feedbacks')]
     #[ORM\Column(nullable: true)]
     private ?int $note = null;

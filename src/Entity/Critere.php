@@ -13,14 +13,16 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+
 
 
 #[ORM\Entity(repositoryClass: CritereRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['critere:read', 'category:read']],
+    normalizationContext: ['groups' => ['critere:read', 'category:read', 'prestation:read']],
     denormalizationContext: ['groups' => ['critere:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
         new Post(),
         new Get(),
         new Patch(),
@@ -33,17 +35,21 @@ class Critere
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[MaxDepth(1)]
     private ?int $id = null;
 
-    #[Groups(['critere:read', 'critere:write', 'category:read'])]
+    #[Groups(['critere:read', 'critere:write', 'category:read', 'prestation:read'])]
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     private ?string $titre = null;
 
     #[Groups(['critere:read', 'critere:write'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'criteres')]
     private Collection $categories;
 
     #[Groups(['critere:read', 'critere:write'])]
+    #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'critere', targetEntity: Feedback::class)]
     private Collection $feedbacks;
 
