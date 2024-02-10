@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     operations: [
         new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
         new Patch(),
         new Delete(),
     ]
@@ -38,7 +38,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ApiResource(paginationEnabled: false)]
 class Prestation
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -48,19 +48,19 @@ class Prestation
 
     #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $titre = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $duree = null;
 
-    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prix = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
