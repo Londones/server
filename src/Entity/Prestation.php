@@ -22,14 +22,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
+#[ORM\Table(name: '`prestation`')]
 #[ApiResource(
     normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public']],
-    denormalizationContext: ['groups' => ['prestation:write', 'date:write']],
+    denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
         new GetCollection(),
         new Post(),
         new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read'],  "enable_max_depth"=>"true"]),
-        new Patch(),
+        new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
         new Delete(),
     ]
 )]
@@ -59,11 +60,11 @@ class Prestation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prix = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'prestation:read'])]
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
@@ -83,6 +84,10 @@ class Prestation
     #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     private Collection $feedback;
+  
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $note_generale = null;
 
     public function __construct()
     {
@@ -251,6 +256,18 @@ class Prestation
                 $feedback->setPrestation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getNoteGenerale(): ?string
+    {
+        return $this->note_generale;
+    }
+
+    public function setNoteGenerale(?string $note_generale): static
+    {
+        $this->note_generale = $note_generale;
 
         return $this;
     }
