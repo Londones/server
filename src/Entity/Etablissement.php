@@ -69,7 +69,7 @@ class Etablissement
     private ?bool $validation = false;
 
     #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public'])]
-    #[ORM\Column(length: 255, name: 'horaires_ouverture')]
+    #[ORM\Column(type: 'text', name: 'horaires_ouverture')]
     private ?string $horairesOuverture = null;
 
     #[Groups(['etablissement:read', 'etablissement:create'])]
@@ -347,5 +347,4 @@ class Etablissement
 
         return $this;
     }
-
 }

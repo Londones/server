@@ -132,11 +132,9 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
             $etablissement = new Etablissement;
             $etablissement->setNom($noms[$i - 1]);
             $etablissement->setAdresse($adresses[$i - 1]);
-            $etablissement->setKbis("Kbis-" . $i);
             $etablissement->setValidation(true);
             $etablissement->setPrestataire($this->getReference('prestataire' . $i));
-            $etablissement->setHorrairesOuverture("-,10:00-19:00,10:00-19:00,10:00-20:00,10:00-19:00,10:00-19:00,-");
-            $etablissement->setJoursOuverture("Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche");
+            $etablissement->setHorairesOuverture('{\n  \"lundi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"mardi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"mercredi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"jeudi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"vendredi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"samedi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"dimanche\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  }\n}');
             $etablissement->setLatitude($lats[$i - 1]);
             $etablissement->setLongitude($lngs[$i - 1]);
             $etablissement->setVille($villes[$i - 1]);
