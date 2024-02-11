@@ -8,9 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Psr\Log\LoggerInterface;
 
-// Retrieve the user by their email.
 class VerifyRoleController extends AbstractController
 {
     #[Route(path: '/verify-role', name: 'verify_role', methods: ['POST'])]
@@ -18,25 +16,28 @@ class VerifyRoleController extends AbstractController
     {
         $email = $request->getPayload()->get('email');
 
-        // Retrieve the user by their email.
-        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        // Get the user details.
+        $user = $this->getUser();
 
-        if (!$user) {
-            return new JsonResponse(['code' => 404, 'message' => 'User not found.'], 404);
+        if ($user) {
+
+            $roles = $user->getRoles();
+            if (!in_array('ROLE_ADMIN', $roles) && !in_array('ROLE_PRESTATAIRE', $roles)) {
+                return new JsonResponse(['code' => 403, 'message' => 'User does not have the required role.'], 403);
+            }
+
+            $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+
+            // Return the user details.
+            return new JsonResponse([
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'roles' => $roles,
+            ]);
         }
 
-        // Check if the user has either "ROLE_ADMIN" or "ROLE_PRESTATAIRE".
-        $roles = $user->getRoles();
-        if (!in_array('ROLE_ADMIN', $roles) && !in_array('ROLE_PRESTATAIRE', $roles)) {
-            return new JsonResponse(['code' => 403, 'message' => 'User does not have the required role.'], 403);
-        }
-
-        // Return the user details.
-        return new JsonResponse([
-            'id' => $user->getId(),
-            'nom' => $user->getNom(),
-            'prenom' => $user->getPrenom(),
-            'roles' => $roles,
-        ]);
+        // Return an error message.
+        return new JsonResponse(['code' => 404, 'message' => 'User not found.'], 404);
     }
 }

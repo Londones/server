@@ -25,13 +25,13 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
         new GetCollection(
-            uriTemplate: '/etablissementsList',
+            uriTemplate: '/public/etablissementsList',
             normalizationContext: ['groups' => ['etablissement:read:list']]
         ),
         new Post(denormalizationContext: ['groups' => ['etablissement:update', 'etablissement:create']]),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
         new Get(
-            uriTemplate: '/etablissementPublic/{id}',
+            uriTemplate: '/public/etablissementPublic/{id}',
             normalizationContext: ['groups' => ['etablissement:read:public']]
         ),
         new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
