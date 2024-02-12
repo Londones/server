@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
-use App\Entity\Traits\TimestampableTrait;
 use App\Repository\EtablissementRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,7 +24,7 @@ use App\State\EtablissementProcessor;
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => 'etablissement:read'],
+    normalizationContext: ['groups' => 'etablissement:read',  'search:read'],
     denormalizationContext: ['groups' => 'etablissement:write'],
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
@@ -46,23 +45,22 @@ use App\State\EtablissementProcessor;
         new Delete(),
     ]
 )]
+
+#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial'])]
 #[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
-    use TimestampableTrait;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read'])]
+    #[Groups(['etablissement:read', 'search:read'])]
     private ?int $id = null;
 
-    #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
-    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 
@@ -79,8 +77,8 @@ class Etablissement
     #[ORM\JoinColumn(nullable: false)]
     private ?User $prestataire = null;
 
-    #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Prestation::class, cascade: ['persist'])]
-    #[Groups(['etablissement:read:public', 'etablissement:update'])]
+    #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Prestation::class)]
+    #[Groups(['etablissement:read:public', 'search:read'])]
     private Collection $prestation;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Employe::class)]
@@ -100,20 +98,22 @@ class Etablissement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $kbisName = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $latitude = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $longitude = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['search:read'])]
     private ?string $ville = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['search:read'])]
     private ?string $codePostal = null;
 
     public function __construct()
