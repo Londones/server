@@ -22,14 +22,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
+#[ORM\Table(name: '`prestation`')]
 #[ApiResource(
-    normalizationContext: ['groups' => ['prestation:read', 'etablissement:read:public'], "enable_max_depth"=>"true"],
-    denormalizationContext: ['groups' => ['prestation:write']],
+    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public'], "enable_max_depth"=>"true"],
+    denormalizationContext: ['groups' => ['prestation:write', 'date:write', 'prestation:update']],
     operations: [
         new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
-        new Patch(),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
+        new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
         new Delete(),
     ]
 )]
@@ -38,7 +39,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ApiResource(paginationEnabled: false)]
 class Prestation
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -48,19 +49,19 @@ class Prestation
 
     #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $titre = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $duree = null;
 
-    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prix = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
@@ -85,6 +86,10 @@ class Prestation
     // #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     private Collection $feedback;
+  
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $note_generale = null;
 
     public function __construct()
     {
@@ -253,6 +258,18 @@ class Prestation
                 $feedback->setPrestation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getNoteGenerale(): ?string
+    {
+        return $this->note_generale;
+    }
+
+    public function setNoteGenerale(?string $note_generale): static
+    {
+        $this->note_generale = $note_generale;
 
         return $this;
     }

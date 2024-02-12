@@ -11,7 +11,6 @@ use App\Repository\EmployeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Traits\TimestampableTrait;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -24,27 +23,26 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read']],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
-        new GetCollection(),
-        new Post(),
-        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"]),
+        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new Post(denormalizationContext: ['groups' => ['reservation:write']]),
+        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"]),
         new Patch(denormalizationContext: ['groups' => ['employe:update']]),
     ]
 )]
 class Employe
 {
-    use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['prestation:read'])]
+    #[Groups(['prestation:read', 'reservation:read'])]
     private ?int $id = null;
 
-    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public'])]
+    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public'])]
+    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
@@ -66,6 +64,7 @@ class Employe
     private ?File $imageFile = null;
 
     #[Groups(['employe:read', 'employe:update', 'etablissement:read:public'])]
+    #[MaxDepth(1)]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
@@ -77,12 +76,14 @@ class Employe
     #[Groups(['employe:read'])]
     #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
-    private Collection $prestation;
+    private Collection $prestation; 
 
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Reservation::class)]
+    #[MaxDepth(1)]
     private Collection $reservationsEmploye;
    
     #[Groups(['employe:read'])]
+    #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Indisponibilite::class)]
     private Collection $indisponibilites;
 

@@ -4,28 +4,60 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\CritereRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\GetCollection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+
+
 
 #[ORM\Entity(repositoryClass: CritereRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['critere:read', 'category:read', 'prestation:read']],
+    denormalizationContext: ['groups' => ['critere:write']],
+    operations: [
+        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new Post(),
+        new Get(),
+        new Patch(),
+        new Delete(),
+    ]
+)]
+
 class Critere
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[MaxDepth(1)]
     private ?int $id = null;
 
+    #[Groups(['critere:read', 'critere:write', 'category:read', 'prestation:read'])]
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     private ?string $titre = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $commentaire = null;
+    #[Groups(['critere:read', 'critere:write'])]
+    #[MaxDepth(1)]
+    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'criteres')]
+    private Collection $categories;
 
-    #[ORM\Column]
-    private ?float $note = null;
+    #[Groups(['critere:read', 'critere:write'])]
+    #[MaxDepth(1)]
+    #[ORM\OneToMany(mappedBy: 'critere', targetEntity: Feedback::class)]
+    private Collection $feedbacks;
 
-    #[ORM\ManyToOne(inversedBy: 'criteres')]
-    private ?Feedback $feedback = null;
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+        $this->feedbacks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -43,39 +75,59 @@ class Critere
 
         return $this;
     }
-
-    public function getCommentaire(): ?string
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
     {
-        return $this->commentaire;
+        return $this->categories;
     }
 
-    public function setCommentaire(?string $commentaire): static
+    public function addCategory(Category $category): static
     {
-        $this->commentaire = $commentaire;
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addCritere($this);
+        }
 
         return $this;
     }
 
-    public function getNote(): ?float
+    public function removeCategory(Category $category): static
     {
-        return $this->note;
-    }
-
-    public function setNote(float $note): static
-    {
-        $this->note = $note;
+        if ($this->categories->removeElement($category)) {
+            $category->removeCritere($this);
+        }
 
         return $this;
     }
 
-    public function getFeedback(): ?Feedback
+    /**
+     * @return Collection<int, Feedback>
+     */
+    public function getFeedbacks(): Collection
     {
-        return $this->feedback;
+        return $this->feedbacks;
     }
 
-    public function setFeedback(?Feedback $feedback): static
+    public function addFeedback(Feedback $feedback): static
     {
-        $this->feedback = $feedback;
+        if (!$this->feedbacks->contains($feedback)) {
+            $this->feedbacks->add($feedback);
+            $feedback->setCritere($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedback(Feedback $feedback): static
+    {
+        if ($this->feedbacks->removeElement($feedback)) {
+            // set the owning side to null (unless already changed)
+            if ($feedback->getCritere() === $this) {
+                $feedback->setCritere(null);
+            }
+        }
 
         return $this;
     }
