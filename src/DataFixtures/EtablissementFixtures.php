@@ -9,11 +9,23 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Faker\Factory;
-use Symfony\Component\HttpFoundation\File\File;
+use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
+
 
 class EtablissementFixtures extends Fixture implements DependentFixtureInterface
 {
+    private $fileUploader;
+    private $filesystem;
+
+    public function __construct(FileUploader $fileUploader, Filesystem $filesystem)
+    {
+        $this->fileUploader = $fileUploader;
+
+        $this->filesystem = $filesystem;
+    }
+
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create("fr_FR");
@@ -128,7 +140,7 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
         ];
 
         // create random etablissements
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 0; $i < count($noms); $i++) {
             $etablissement = new Etablissement;
             $etablissement->setNom($noms[$i - 1]);
             $etablissement->setAdresse($adresses[$i - 1]);
@@ -141,31 +153,39 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
             $etablissement->setVille($villes[$i - 1]);
             $etablissement->setCodePostal($codesPostaux[$i - 1]);
 
+            for ($j = 0; $j < 10; $j++) {
+                $copyFileName = uniqid() . '_' . 'etablissement' . $j . '.jpg';
+                $originalFilePath = 'public/fixtures/etablissement' . $j . '.jpg';
+                $copyFilePath = $this->fileUploader->getTargetDirectory() . '/' . $copyFileName;
+                $this->filesystem->copy($originalFilePath, $copyFilePath, true);
 
-            for ($j = 1; $j <= 10; $j++) {
-                $imageEtablissement = new ImageEtablissement();
-                $imageEtablissement->setImageName('image' . $j . '.jpg');
                 $file = new UploadedFile(
-                    'public/fixtures/etablissement' . $j - 1 . '.jpg',
-                    'image.png',
-                    'image/png',
+                    $copyFilePath,
+                    $copyFileName,
+                    'image/jpeg', // Adjust the mime type as necessary
                     null,
                     true
                 );
-                $imageEtablissement->setImageFile($file);
+
+                // Upload the copied file
+                $imageEtablissementName = $this->fileUploader->upload($file);
+
+                // Create and persist ImageEtablissement entity
+                $imageEtablissement = new ImageEtablissement();
+                $imageEtablissement->setImageName($imageEtablissementName);
                 $imageEtablissement->setEtablissement($etablissement);
                 $manager->persist($imageEtablissement);
 
                 $employe = new Employe();
-                $employe->setNom($nomsEmploye[$j - 1]);
-                $employe->setPrenom($prenomsEmploye[$j - 1]);
+                $employe->setNom($nomsEmploye[$j]);
+                $employe->setPrenom($prenomsEmploye[$j]);
                 $employe->setEtablissement($etablissement);
                 $employe->setDescription("Je m'appelle " . $employe->getPrenom() . " " . $employe->getNom() . " et je suis employé dans l'établissement " . $etablissement->getNom() . ".");
-                $this->addReference('employe' . $j . 'etablissement' . $i, $employe);
+                $this->addReference('employe' . ($j + 1) . 'etablissement' . ($i + 1), $employe);
                 $manager->persist($employe);
             }
 
-            $this->addReference('etablissement' . $i, $etablissement);
+            $this->addReference('etablissement' . ($i + 1), $etablissement);
             $manager->persist($etablissement);
         }
 

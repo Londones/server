@@ -2,6 +2,11 @@ api_login_route:
   path: /api/login
   methods: ["POST"]
 
+api_verify_role_route:
+  path: /api/verify-role
+  controller: App\Controller\VerifyRoleController::verifyUserRole
+  methods: ["POST"]
+
 api_refresh_token:
   path: /api/token/refresh
 
