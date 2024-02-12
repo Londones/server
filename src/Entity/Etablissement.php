@@ -32,6 +32,10 @@ use App\State\EtablissementProcessor;
             uriTemplate: '/public/etablissementsList',
             normalizationContext: ['groups' => ['etablissement:read:list']]
         ),
+        new GetCollection(
+            uriTemplate: '/filter',
+            normalizationContext: ['groups' => ['search:read']]
+        ),
         new Post(
             denormalizationContext: ['groups' => ['etablissement:create']],
             inputFormats: ['multipart' => ['multipart/form-data']]
