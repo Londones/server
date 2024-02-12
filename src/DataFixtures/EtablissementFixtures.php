@@ -9,11 +9,18 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Faker\Factory;
-use Symfony\Component\HttpFoundation\File\File;
+use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class EtablissementFixtures extends Fixture implements DependentFixtureInterface
 {
+    private $fileUploader;
+
+    public function __construct(FileUploader $fileUploader)
+    {
+        $this->fileUploader = $fileUploader;
+    }
+
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create("fr_FR");
@@ -128,45 +135,46 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
         ];
 
         // create random etablissements
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 0; $i < count($noms); $i++) {
             $etablissement = new Etablissement;
-            $etablissement->setNom($noms[$i - 1]);
-            $etablissement->setAdresse($adresses[$i - 1]);
-            $etablissement->setKbis("Kbis-" . $i);
+            $etablissement->setNom($noms[$i]);
+            $etablissement->setAdresse($adresses[$i]);
             $etablissement->setValidation(true);
-            $etablissement->setPrestataire($this->getReference('prestataire' . $i));
-            $etablissement->setHorrairesOuverture("-,10:00-19:00,10:00-19:00,10:00-20:00,10:00-19:00,10:00-19:00,-");
-            $etablissement->setJoursOuverture("Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche");
-            $etablissement->setLatitude($lats[$i - 1]);
-            $etablissement->setLongitude($lngs[$i - 1]);
-            $etablissement->setVille($villes[$i - 1]);
-            $etablissement->setCodePostal($codesPostaux[$i - 1]);
+            $etablissement->setPrestataire($this->getReference('prestataire' . ($i + 1)));
+            $etablissement->setHorairesOuverture('{\n  \"lundi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"mardi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"mercredi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"jeudi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"vendredi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"samedi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"dimanche\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  }\n}');
+            $etablissement->setLatitude($lats[$i]);
+            $etablissement->setLongitude($lngs[$i]);
+            $etablissement->setVille($villes[$i]);
+            $etablissement->setCodePostal($codesPostaux[$i]);
 
 
-            for ($j = 1; $j <= 10; $j++) {
+            for ($j = 0; $j < 10; $j++) {
                 $imageEtablissement = new ImageEtablissement();
-                $imageEtablissement->setImageName('image' . $j . '.jpg');
+                // $imageEtablissement->setImageName('image' . ($j + 1) . '.jpg');
                 $file = new UploadedFile(
-                    'public/fixtures/etablissement' . $j - 1 . '.jpg',
+                    'public/fixtures/etablissement' . $j . '.jpg',
                     'image.png',
                     'image/png',
                     null,
-                    true
+                    false
                 );
-                $imageEtablissement->setImageFile($file);
+                // $imageEtablissement->setImageFile($file);
+
+                $imageEtablissementName = $this->fileUploader->upload($file);
+                $imageEtablissement->setImageName($imageEtablissementName);
                 $imageEtablissement->setEtablissement($etablissement);
                 $manager->persist($imageEtablissement);
 
                 $employe = new Employe();
-                $employe->setNom($nomsEmploye[$j - 1]);
-                $employe->setPrenom($prenomsEmploye[$j - 1]);
+                $employe->setNom($nomsEmploye[$j]);
+                $employe->setPrenom($prenomsEmploye[$j]);
                 $employe->setEtablissement($etablissement);
                 $employe->setDescription("Je m'appelle " . $employe->getPrenom() . " " . $employe->getNom() . " et je suis employé dans l'établissement " . $etablissement->getNom() . ".");
-                $this->addReference('employe' . $j . 'etablissement' . $i, $employe);
+                $this->addReference('employe' . ($j + 1) . 'etablissement' . ($i + 1), $employe);
                 $manager->persist($employe);
             }
 
-            $this->addReference('etablissement' . $i, $etablissement);
+            $this->addReference('etablissement' . ($i + 1), $etablissement);
             $manager->persist($etablissement);
         }
 

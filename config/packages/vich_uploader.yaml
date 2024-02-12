@@ -16,3 +16,8 @@ vich_uploader:
       uri_prefix: upload/images/etablissement
       upload_destination: "%kernel.project_dir%/public/upload/images/etablissement"
       namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+    etablissement:
+      uri_prefix: upload/etablissement/kbis
+      upload_destination: "%kernel.project_dir%/public/upload/etablissement/kbis"
+      namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
