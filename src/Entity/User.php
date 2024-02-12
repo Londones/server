@@ -45,24 +45,24 @@ use App\Entity\Etablissement;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     // use TimestampableTrait;
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['user:read', 'etablissement:read'])]
     private ?int $id = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write','etablissement:create'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
     #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write','etablissement:create'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write','etablissement:create'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -75,7 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Length(min: 6)]
-    #[Groups(['user:read:full', 'user:write', 'user:write:update','etablissement:create'])]
+    #[Groups(['user:read:full', 'user:write', 'user:write:update', 'etablissement:create'])]
     private ?string $plainPassword = null;
 
     #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]
@@ -240,10 +240,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
-
-        if (null !== $imageFile) {
-            $this->updatedAt = new \DateTime();
-        }
     }
 
     public function isEmailVerified(): ?bool

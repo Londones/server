@@ -44,6 +44,7 @@ class PrestationFixtures extends Fixture implements DependentFixtureInterface
             $Prestation->setDescription("Le Lorem Ipsum esSt simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500");
             $Prestation->setPrix(rand(10, 100));
             $Prestation->setDuree(rand(15, 180));
+            $Prestation->setNoteGenerale(rand(1, 500) / 100);
 
             $this->addReference('prestation' . $i, $Prestation);
 

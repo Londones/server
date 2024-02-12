@@ -29,7 +29,7 @@ use App\State\EtablissementProcessor;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
         new GetCollection(
-            uriTemplate: '/etablissementsList',
+            uriTemplate: '/public/etablissementsList',
             normalizationContext: ['groups' => ['etablissement:read:list']]
         ),
         new Post(
@@ -38,7 +38,7 @@ use App\State\EtablissementProcessor;
         ),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
         new Get(
-            uriTemplate: '/etablissementPublic/{id}',
+            uriTemplate: '/public/etablissementPublic/{id}',
             normalizationContext: ['groups' => ['etablissement:read:public']]
         ),
         new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
@@ -68,7 +68,7 @@ class Etablissement
     #[ORM\Column]
     private ?bool $validation = false;
 
-    #[Groups(['etablissement:read', 'etablissement:update','etablissement:create', 'etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
     #[ORM\Column(length: 1000, name: 'horaires_ouverture')]
     private ?string $horairesOuverture = null;
 
@@ -347,5 +347,4 @@ class Etablissement
 
         return $this;
     }
-
 }
