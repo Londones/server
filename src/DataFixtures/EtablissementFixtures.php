@@ -11,14 +11,20 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Faker\Factory;
 use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
+
 
 class EtablissementFixtures extends Fixture implements DependentFixtureInterface
 {
     private $fileUploader;
 
-    public function __construct(FileUploader $fileUploader)
+    private $filesystem;
+
+    public function __construct(FileUploader $fileUploader, Filesystem $filesystem)
     {
         $this->fileUploader = $fileUploader;
+
+        $this->filesystem = $filesystem;
     }
 
     public function load(ObjectManager $manager): void
@@ -147,20 +153,25 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
             $etablissement->setVille($villes[$i]);
             $etablissement->setCodePostal($codesPostaux[$i]);
 
-
             for ($j = 0; $j < 10; $j++) {
-                $imageEtablissement = new ImageEtablissement();
-                // $imageEtablissement->setImageName('image' . ($j + 1) . '.jpg');
-                $file = new UploadedFile(
-                    'public/fixtures/etablissement' . $j . '.jpg',
-                    'image.png',
-                    'image/png',
-                    null,
-                    false
-                );
-                // $imageEtablissement->setImageFile($file);
+                $copyFileName = uniqid() . '_' . 'etablissement' . $j . '.jpg';
+                $originalFilePath = 'public/fixtures/etablissement' . $j . '.jpg';
+                $copyFilePath = $this->fileUploader->getTargetDirectory() . '/' . $copyFileName;
+                $this->filesystem->copy($originalFilePath, $copyFilePath, true);
 
+                $file = new UploadedFile(
+                    $copyFilePath,
+                    $copyFileName,
+                    'image/jpeg', // Adjust the mime type as necessary
+                    null,
+                    true
+                );
+
+                // Upload the copied file
                 $imageEtablissementName = $this->fileUploader->upload($file);
+
+                // Create and persist ImageEtablissement entity
+                $imageEtablissement = new ImageEtablissement();
                 $imageEtablissement->setImageName($imageEtablissementName);
                 $imageEtablissement->setEtablissement($etablissement);
                 $manager->persist($imageEtablissement);
