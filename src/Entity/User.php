@@ -111,15 +111,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Feedback::class)]
     private Collection $feedback;
 
-    #[ORM\OneToMany(mappedBy: 'prestataire', targetEntity: DemandePrestataire::class)]
-    private Collection $validationPrestataire;
-
     public function __construct()
     {
         $this->etablissement = new ArrayCollection();
         $this->reservationsClient = new ArrayCollection();
         $this->feedback = new ArrayCollection();
-        $this->validationPrestataire = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -357,36 +353,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($feedback->getClient() === $this) {
                 $feedback->setClient(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, DemandePrestataire>
-     */
-    public function getValidationPrestataire(): Collection
-    {
-        return $this->validationPrestataire;
-    }
-
-    public function addValidationPrestataire(DemandePrestataire $validationPrestataire): static
-    {
-        if (!$this->validationPrestataire->contains($validationPrestataire)) {
-            $this->validationPrestataire->add($validationPrestataire);
-            $validationPrestataire->setPrestataire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeValidationPrestataire(DemandePrestataire $validationPrestataire): static
-    {
-        if ($this->validationPrestataire->removeElement($validationPrestataire)) {
-            // set the owning side to null (unless already changed)
-            if ($validationPrestataire->getPrestataire() === $this) {
-                $validationPrestataire->setPrestataire(null);
             }
         }
 
