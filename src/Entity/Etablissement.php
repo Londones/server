@@ -20,6 +20,7 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\State\EtablissementProcessor;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -45,6 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(),
     ]
 )]
+#[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
     use TimestampableTrait;
