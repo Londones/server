@@ -20,6 +20,7 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\State\EtablissementProcessor;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -45,6 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(),
     ]
 )]
+#[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
     use TimestampableTrait;
@@ -56,7 +58,7 @@ class Etablissement
     private ?int $id = null;
 
     #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
@@ -68,8 +70,8 @@ class Etablissement
     #[ORM\Column]
     private ?bool $validation = false;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public'])]
-    #[ORM\Column(type: 'text', name: 'horaires_ouverture')]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
+    #[ORM\Column(length: 1000, name: 'horaires_ouverture')]
     private ?string $horairesOuverture = null;
 
     #[Groups(['etablissement:read', 'etablissement:create'])]
@@ -78,7 +80,7 @@ class Etablissement
     private ?User $prestataire = null;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Prestation::class, cascade: ['persist'])]
-    #[Groups(['etablissement:read:public', 'etablissement:create'])]
+    #[Groups(['etablissement:read:public', 'etablissement:update'])]
     private Collection $prestation;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Employe::class)]
