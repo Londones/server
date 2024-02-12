@@ -11,6 +11,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use App\Entity\Traits\TimestampableTrait;
@@ -49,16 +52,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'etablissement:read'])]
     private ?int $id = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write','etablissement:create'])]
+    #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write','etablissement:create'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write','etablissement:create'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -71,7 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Length(min: 6)]
-    #[Groups(['user:read:full', 'user:write', 'user:write:update'])]
+    #[Groups(['user:read:full', 'user:write', 'user:write:update','etablissement:create'])]
     private ?string $plainPassword = null;
 
     #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]

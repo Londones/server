@@ -48,15 +48,15 @@ class Prestation
 
     // #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $titre = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $duree = null;
 
-    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read'])]
+    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prix = null;
 

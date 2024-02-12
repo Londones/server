@@ -16,7 +16,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\State\EtablissementProcessor;
 
+#[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => 'etablissement:read',  'search:read'],
@@ -27,11 +32,10 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
             uriTemplate: '/etablissementsList',
             normalizationContext: ['groups' => ['etablissement:read:list']]
         ),
-        new GetCollection(
-            uriTemplate: '/filter',
-            normalizationContext: ['groups' => ['search:read']]
+        new Post(
+            denormalizationContext: ['groups' => ['etablissement:create']],
+            inputFormats: ['multipart' => ['multipart/form-data']]
         ),
-        new Post(denormalizationContext: ['groups' => ['etablissement:update', 'etablissement:create']]),
         new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
         new Get(
             uriTemplate: '/etablissementPublic/{id}',
@@ -43,6 +47,7 @@ use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 )]
 
 #[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial'])]
+#[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
     #[ORM\Id]
@@ -59,24 +64,16 @@ class Etablissement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 
-    #[Groups(['etablissement:read'])]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $kbis = null;
-
     #[Groups(['etablissement:read', 'etablissement:update'])]
     #[ORM\Column]
     private ?bool $validation = false;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public'])]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $jours_ouverture = null;
-
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public'])]
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $horraires_ouverture = null;
+    #[Groups(['etablissement:read', 'etablissement:update','etablissement:create', 'etablissement:read:public'])]
+    #[ORM\Column(length: 1000, name: 'horaires_ouverture')]
+    private ?string $horairesOuverture = null;
 
     #[Groups(['etablissement:read', 'etablissement:create'])]
-    #[ORM\ManyToOne(inversedBy: 'etablissement')]
+    #[ORM\ManyToOne(inversedBy: 'etablissement', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $prestataire = null;
 
@@ -92,18 +89,29 @@ class Etablissement
     #[Groups(['etablissement:read:public'])]
     private ?Collection $imageEtablissements = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups(['search:read'])]
-    private ?float $latitude = null;
+    #[Vich\UploadableField(mapping: 'etablissement', fileNameProperty: 'kbisName')]
+    #[Groups(['etablissement:read', 'etablissement:create'])]
+    // #[Assert\File(maxSize: '2M', mimeTypes: ['application/pdf'])]
+    private ?File $kbisFile = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups(['search:read'])]
-    private ?float $longitude = null;
+    #[Groups(['etablissement:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $kbisName = null;
 
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $latitude = null;
+
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $longitude = null;
+
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['search:read'])]
     private ?string $ville = null;
 
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['search:read'])]
     private ?string $codePostal = null;
@@ -144,18 +152,6 @@ class Etablissement
         return $this;
     }
 
-    public function getKbis(): ?string
-    {
-        return $this->kbis;
-    }
-
-    public function setKbis(?string $kbis): static
-    {
-        $this->kbis = $kbis;
-
-        return $this;
-    }
-
     public function isValidation(): ?bool
     {
         return $this->validation;
@@ -168,26 +164,14 @@ class Etablissement
         return $this;
     }
 
-    public function getJoursOuverture(): ?string
+    public function getHorairesOuverture(): ?string
     {
-        return $this->jours_ouverture;
+        return $this->horairesOuverture;
     }
 
-    public function setJoursOuverture(?string $jours_ouverture): static
+    public function setHorairesOuverture(?string $horairesOuverture): static
     {
-        $this->jours_ouverture = $jours_ouverture;
-
-        return $this;
-    }
-
-    public function getHorrairesOuverture(): ?string
-    {
-        return $this->horraires_ouverture;
-    }
-
-    public function setHorrairesOuverture(?string $horraires_ouverture): static
-    {
-        $this->horraires_ouverture = $horraires_ouverture;
+        $this->horairesOuverture = $horairesOuverture;
 
         return $this;
     }
@@ -294,24 +278,24 @@ class Etablissement
         return $this;
     }
 
-    public function getLatitude(): ?float
+    public function getLatitude(): ?string
     {
         return $this->latitude;
     }
 
-    public function setLatitude(float $latitude): static
+    public function setLatitude(string $latitude): static
     {
         $this->latitude = $latitude;
 
         return $this;
     }
 
-    public function getLongitude(): ?float
+    public function getLongitude(): ?string
     {
         return $this->longitude;
     }
 
-    public function setLongitude(float $longitude): static
+    public function setLongitude(string $longitude): static
     {
         $this->longitude = $longitude;
 
@@ -341,4 +325,29 @@ class Etablissement
 
         return $this;
     }
+
+    public function getKbisFile(): ?File
+    {
+        return $this->kbisFile;
+    }
+
+    public function setKbisFile(?File $kbisFile): static
+    {
+        $this->kbisFile = $kbisFile;
+
+        return $this;
+    }
+
+    public function getKbisName(): ?string
+    {
+        return $this->kbisName;
+    }
+
+    public function setKbisName(?string $kbisName): static
+    {
+        $this->kbisName = $kbisName;
+
+        return $this;
+    }
+
 }
