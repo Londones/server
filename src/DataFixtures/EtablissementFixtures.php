@@ -142,16 +142,15 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
         // create random etablissements
         for ($i = 0; $i < count($noms); $i++) {
             $etablissement = new Etablissement;
-            $etablissement->setNom($noms[$i - 1]);
-            $etablissement->setAdresse($adresses[$i - 1]);
-            $etablissement->setKbisName("Kbis-" . $i);
+            $etablissement->setNom($noms[$i]);
+            $etablissement->setAdresse($adresses[$i]);
             $etablissement->setValidation(true);
-            $etablissement->setPrestataire($this->getReference('prestataire' . $i));
-            $etablissement->setHorairesOuverture('{\n  \"lundi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"mardi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"mercredi\": {\n    \"checked\": true,\n    \"timeRange\": {\n      \"startTime\": \"09:00\",\n      \"endTime\": \"19:00\"\n    }\n  },\n  \"jeudi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"vendredi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"samedi\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  },\n  \"dimanche\": {\n    \"checked\": false,\n    \"timeRange\": {\n      \"startTime\": \"\",\n      \"endTime\": \"\"\n    }\n  }\n}');
-            $etablissement->setLatitude($lats[$i - 1]);
-            $etablissement->setLongitude($lngs[$i - 1]);
-            $etablissement->setVille($villes[$i - 1]);
-            $etablissement->setCodePostal($codesPostaux[$i - 1]);
+            $etablissement->setPrestataire($this->getReference('prestataire' . ($i + 1)));
+            $etablissement->setHorairesOuverture("{\"lundi\":{\"checked\":true,\"timeRange\":{\"startTime\":\"09:00\",\"endTime\":\"19:00\"}},\"mardi\":{\"checked\":true,\"timeRange\":{\"startTime\":\"09:00\",\"endTime\":\"19:00\"}},\"mercredi\":{\"checked\":true,\"timeRange\":{\"startTime\":\"09:00\",\"endTime\":\"19:00\"}},\"jeudi\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}},\"vendredi\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}},\"samedi\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}},\"dimanche\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}}}");
+            $etablissement->setLatitude($lats[$i]);
+            $etablissement->setLongitude($lngs[$i]);
+            $etablissement->setVille($villes[$i]);
+            $etablissement->setCodePostal($codesPostaux[$i]);
 
             for ($j = 0; $j < 10; $j++) {
                 $copyFileName = uniqid() . '_' . 'etablissement' . $j . '.jpg';
