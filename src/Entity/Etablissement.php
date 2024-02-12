@@ -108,12 +108,10 @@ class Etablissement
 
     #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['search:read'])]
     private ?string $ville = null;
 
     #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['search:read'])]
     private ?string $codePostal = null;
 
     public function __construct()

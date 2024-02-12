@@ -17,7 +17,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class EtablissementFixtures extends Fixture implements DependentFixtureInterface
 {
     private $fileUploader;
-
     private $filesystem;
 
     public function __construct(FileUploader $fileUploader, Filesystem $filesystem)
