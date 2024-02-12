@@ -51,30 +51,36 @@ class Prestation
 
     // #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create', 'reservation:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $titre = null;
 
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $duree = null;
 
     #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $prix = null;
 
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $description = null;
 
     #[Groups(['etablissement:read:public', 'prestation:read', 'prestation:write'])]
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     private ?Category $category = null;
 
     #[Groups(['prestation:read', 'prestation:write'])]
     #[ORM\ManyToOne(inversedBy: 'prestation')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     private ?Etablissement $etablissement = null;
 
     // #[Groups(['prestation:read'])]
@@ -83,14 +89,17 @@ class Prestation
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Reservation::class)]
+    #[MaxDepth(1)]
     private Collection $reservations;
 
     // #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
+    #[MaxDepth(1)]
     private Collection $feedback;
   
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $note_generale = null;
 
     public function __construct()
