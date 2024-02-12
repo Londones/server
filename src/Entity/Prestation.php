@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ORM\Table(name: '`prestation`')]
 #[ApiResource(
-    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public']],
+    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read']],
     denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
         new GetCollection(),
@@ -34,8 +34,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         new Delete(),
     ]
 )]
-#[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes'])]
-#[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes.nom'])]
+// #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes'])]
+// #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes.nom'])]
 class Prestation
 {
     // use TimestampableTrait;
@@ -46,7 +46,7 @@ class Prestation
     #[Groups(['etablissement:read:public', 'prestation:read'])]
     private ?int $id = null;
 
-    #[ApiFilter(CustomSearchFilter::class)]
+    // #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
@@ -85,7 +85,7 @@ class Prestation
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     private Collection $feedback;
   
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $note_generale = null;
 
