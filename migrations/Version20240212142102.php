@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240212142659 extends AbstractMigration
+final class Version20240212142102 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -44,7 +44,7 @@ final class Version20240212142659 extends AbstractMigration
         $this->addSql('CREATE TABLE employe_prestation (employe_id INT NOT NULL, prestation_id INT NOT NULL, PRIMARY KEY(employe_id, prestation_id))');
         $this->addSql('CREATE INDEX IDX_D301556A1B65292 ON employe_prestation (employe_id)');
         $this->addSql('CREATE INDEX IDX_D301556A9E45C554 ON employe_prestation (prestation_id)');
-        $this->addSql('CREATE TABLE etablissement (id INT NOT NULL, prestataire_id INT NOT NULL, nom VARCHAR(255) NOT NULL, adresse VARCHAR(255) DEFAULT NULL, validation BOOLEAN NOT NULL, horaires_ouverture VARCHAR(1000) NOT NULL, kbis_name VARCHAR(255) DEFAULT NULL, latitude VARCHAR(255) DEFAULT NULL, longitude VARCHAR(255) DEFAULT NULL, ville VARCHAR(255) DEFAULT NULL, code_postal VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE etablissement (id INT NOT NULL, prestataire_id INT NOT NULL, nom VARCHAR(255) NOT NULL, adresse VARCHAR(255) DEFAULT NULL, validation BOOLEAN NOT NULL, horaires_ouverture VARCHAR(1000) NOT NULL, kbis_name VARCHAR(255) DEFAULT NULL, latitude VARCHAR(255) DEFAULT NULL, longitude VARCHAR(255) DEFAULT NULL, ville VARCHAR(255) DEFAULT NULL, code_postal VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_20FD592CBE3DB2B7 ON etablissement (prestataire_id)');
         $this->addSql('CREATE TABLE feedback (id INT NOT NULL, client_id INT NOT NULL, prestation_id INT NOT NULL, critere_id INT DEFAULT NULL, note INT DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_D229445819EB6921 ON feedback (client_id)');
