@@ -20,6 +20,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
+use App\Filter\GeoLocationFilter;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -50,7 +51,8 @@ use App\State\EtablissementProcessor;
     ]
 )]
 
-#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial'])]
+#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial', 'ville' => 'ipartial', 'codePostal' => 'ipartial'])]
+#[ApiFilter(GeoLocationFilter::class)]
 #[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
