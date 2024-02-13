@@ -17,7 +17,7 @@ class VerifyRoleController extends AbstractController
         $email = $request->getPayload()->get('email');
 
         // Get the user details.
-        $user = $this->getUser();
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
         if ($user) {
 
