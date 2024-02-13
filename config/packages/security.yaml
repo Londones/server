@@ -36,7 +36,7 @@ security:
   access_control:
     - { path: ^/api/(login|token/refresh), roles: PUBLIC_ACCESS }
     - { path: ^/api/verify-role, roles: IS_AUTHENTICATED_FULLY }
-    - { path: ^/api/public, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/api/public, roles: PUBLIC_ACCESS }
     - { path: ^/, roles: PUBLIC_ACCESS }
     # - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
 
