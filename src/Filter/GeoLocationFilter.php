@@ -11,61 +11,38 @@ class GeoLocationFilter extends AbstractFilter
 {
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
     {
-        if ($property !== 'distance' || !is_array($value) || !isset($value['lat'], $value['long'], $value['distance'])) {
+        if ($property !== 'distance') {
             return;
         }
 
-        $lat = (float) $value['lat'];
-        $long = (float) $value['long'];
-        $distance = (float) $value['distance']; // Distance in kilometers
+        // Ensure the value contains the latitude, longitude, and radius, e.g., "48.8566,2.3522,10"
+        [$lat, $long, $radius] = explode(',', $value);
 
-        $alias = $queryBuilder->getRootAliases()[0];
+        $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        // Using Haversine formula for distance calculation
-        // This SQL snippet calculates the distance in kilometers between two points
-        $haversine = "(6371 * acos(cos(radians(:lat)) * cos(radians($alias.latitude)) * cos(radians($alias.longitude) - radians(:long)) + sin(radians(:lat)) * sin(radians($alias.latitude))))";
-
-        $queryBuilder
-            ->andWhere(sprintf('%s < :distance', $haversine))
+        // Use your custom GEO function in the query
+        // The GEO function is expected to return the distance, so you can compare it with the radius
+        $queryBuilder->andWhere(sprintf('GEO(%s.latitude, %s.longitude, :lat, :long) < :radius', $rootAlias, $rootAlias))
             ->setParameter('lat', $lat)
             ->setParameter('long', $long)
-            ->setParameter('distance', $distance);
+            ->setParameter('radius', $radius);
     }
+
 
     public function getDescription(string $resourceClass): array
     {
         return [
-            'lat' => [
-                'property' => 'lat',
-                'type' => 'float',
-                'required' => false,
-                'swagger' => [
-                    'description' => 'Latitude for distance calculation.',
-                    'name' => 'lat',
-                    'type' => 'float',
-                ],
-            ],
-            'long' => [
-                'property' => 'long',
-                'type' => 'float',
-                'required' => false,
-                'swagger' => [
-                    'description' => 'Longitude for distance calculation.',
-                    'name' => 'long',
-                    'type' => 'float',
-                ],
-            ],
+            // Describes the 'distance' filter parameter, which now expects a combined string of lat,long,radius
             'distance' => [
                 'property' => 'distance',
-                'type' => 'float',
+                'type' => 'string', // Type is now string to indicate the expected format of "lat,long,radius"
                 'required' => false,
                 'swagger' => [
-                    'description' => 'Distance in kilometers within which to search.',
+                    'description' => 'Combined latitude, longitude, and radius (in kilometers) for distance calculation, separated by commas. For example: "48.8566,2.3522,10" where the radius "10" is the distance in kilometers.',
                     'name' => 'distance',
-                    'type' => 'float',
+                    'type' => 'string',
                 ],
             ],
         ];
     }
-    
 }
