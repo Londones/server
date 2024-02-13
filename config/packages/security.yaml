@@ -23,17 +23,21 @@ security:
         password_path: password
         success_handler: lexik_jwt_authentication.handler.authentication_success
         failure_handler: lexik_jwt_authentication.handler.authentication_failure
-      stateless: false
+      stateless: true
       jwt: ~
       refresh_jwt:
         check_path: /api/token/refresh # or, you may use the `api_refresh_token` route name
+        provider: app_user_provider
+
+    api:
+      pattern: ^/api/verify-role
+      stateless: true
 
   access_control:
-    - { path: ^/, roles: PUBLIC_ACCESS }
     - { path: ^/api/(login|token/refresh), roles: PUBLIC_ACCESS }
-    - { path: ^/api/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/verify-role, roles: IS_AUTHENTICATED_FULLY }
     - { path: ^/api/public, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/, roles: PUBLIC_ACCESS }
     # - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

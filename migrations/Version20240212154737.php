@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240212142659 extends AbstractMigration
+final class Version20240212154737 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,7 +22,6 @@ final class Version20240212142659 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SEQUENCE category_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE critere_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE SEQUENCE demande_prestataire_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE employe_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE etablissement_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE feedback_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
@@ -32,13 +31,11 @@ final class Version20240212142659 extends AbstractMigration
         $this->addSql('CREATE SEQUENCE refresh_tokens_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE "reservation_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE "user_id_seq" INCREMENT BY 1 MINVALUE 1 START 1');
-        $this->addSql('CREATE TABLE category (id INT NOT NULL, name VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE category (id INT NOT NULL, name VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE category_critere (category_id INT NOT NULL, critere_id INT NOT NULL, PRIMARY KEY(category_id, critere_id))');
         $this->addSql('CREATE INDEX IDX_B8B2C02D12469DE2 ON category_critere (category_id)');
         $this->addSql('CREATE INDEX IDX_B8B2C02D9E5F45AB ON category_critere (critere_id)');
         $this->addSql('CREATE TABLE critere (id INT NOT NULL, titre VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE TABLE demande_prestataire (id INT NOT NULL, prestataire_id INT DEFAULT NULL, statut BOOLEAN NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX IDX_C1853BF4BE3DB2B7 ON demande_prestataire (prestataire_id)');
         $this->addSql('CREATE TABLE employe (id INT NOT NULL, etablissement_id INT NOT NULL, nom VARCHAR(255) NOT NULL, prenom VARCHAR(255) NOT NULL, horraires_service VARCHAR(255) DEFAULT NULL, image_name VARCHAR(255) DEFAULT NULL, description VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_F804D3B9FF631228 ON employe (etablissement_id)');
         $this->addSql('CREATE TABLE employe_prestation (employe_id INT NOT NULL, prestation_id INT NOT NULL, PRIMARY KEY(employe_id, prestation_id))');
@@ -82,7 +79,6 @@ final class Version20240212142659 extends AbstractMigration
         $this->addSql('CREATE TRIGGER notify_trigger AFTER INSERT OR UPDATE ON messenger_messages FOR EACH ROW EXECUTE PROCEDURE notify_messenger_messages();');
         $this->addSql('ALTER TABLE category_critere ADD CONSTRAINT FK_B8B2C02D12469DE2 FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE category_critere ADD CONSTRAINT FK_B8B2C02D9E5F45AB FOREIGN KEY (critere_id) REFERENCES critere (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE demande_prestataire ADD CONSTRAINT FK_C1853BF4BE3DB2B7 FOREIGN KEY (prestataire_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE employe ADD CONSTRAINT FK_F804D3B9FF631228 FOREIGN KEY (etablissement_id) REFERENCES etablissement (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE employe_prestation ADD CONSTRAINT FK_D301556A1B65292 FOREIGN KEY (employe_id) REFERENCES employe (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE employe_prestation ADD CONSTRAINT FK_D301556A9E45C554 FOREIGN KEY (prestation_id) REFERENCES "prestation" (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -105,7 +101,6 @@ final class Version20240212142659 extends AbstractMigration
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP SEQUENCE category_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE critere_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE demande_prestataire_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE employe_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE etablissement_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE feedback_id_seq CASCADE');
@@ -117,7 +112,6 @@ final class Version20240212142659 extends AbstractMigration
         $this->addSql('DROP SEQUENCE "user_id_seq" CASCADE');
         $this->addSql('ALTER TABLE category_critere DROP CONSTRAINT FK_B8B2C02D12469DE2');
         $this->addSql('ALTER TABLE category_critere DROP CONSTRAINT FK_B8B2C02D9E5F45AB');
-        $this->addSql('ALTER TABLE demande_prestataire DROP CONSTRAINT FK_C1853BF4BE3DB2B7');
         $this->addSql('ALTER TABLE employe DROP CONSTRAINT FK_F804D3B9FF631228');
         $this->addSql('ALTER TABLE employe_prestation DROP CONSTRAINT FK_D301556A1B65292');
         $this->addSql('ALTER TABLE employe_prestation DROP CONSTRAINT FK_D301556A9E45C554');
@@ -135,7 +129,6 @@ final class Version20240212142659 extends AbstractMigration
         $this->addSql('DROP TABLE category');
         $this->addSql('DROP TABLE category_critere');
         $this->addSql('DROP TABLE critere');
-        $this->addSql('DROP TABLE demande_prestataire');
         $this->addSql('DROP TABLE employe');
         $this->addSql('DROP TABLE employe_prestation');
         $this->addSql('DROP TABLE etablissement');

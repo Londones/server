@@ -30,10 +30,6 @@ use App\Filter\GeoLocationFilter;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
         new GetCollection(
-            uriTemplate: '/public/etablissementsList',
-            normalizationContext: ['groups' => ['etablissement:read:list']]
-        ),
-        new GetCollection(
             uriTemplate: '/filter',
             normalizationContext: ['groups' => ['search:read']]
         ),
@@ -56,13 +52,17 @@ use App\Filter\GeoLocationFilter;
 #[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
+
+    // use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read', 'search:read'])]
+    #[Groups(['etablissement:read', 'search:read', 'prestation:write'])]
     private ?int $id = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
+
+    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 

@@ -10,10 +10,6 @@ if (!is_file(dirname(__DIR__) . '/vendor/autoload_runtime.php')) {
 
 require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
 
-if (file_exists(__DIR__ . '/.env') && getenv('APP_ENV') !== 'prod') {
-    (new Symfony\Component\Dotenv\Dotenv())->load(__DIR__ . '/.env');
-}
-
 return function (array $context) {
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 
