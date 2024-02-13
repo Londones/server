@@ -27,6 +27,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Entity\Etablissement;
+use App\Filter\RoleFilter;
+use App\Filter\MonthUserFilter;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -44,9 +46,11 @@ use App\Entity\Etablissement;
     ]
 )]
 #[ApiResource(paginationEnabled: false)]
+#[ApiFilter(RoleFilter::class)]
+#[ApiFilter(MonthUserFilter::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    // use TimestampableTrait;
+    use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
