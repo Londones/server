@@ -29,10 +29,6 @@ use App\State\EtablissementProcessor;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
         new GetCollection(
-            uriTemplate: '/public/etablissementsList',
-            normalizationContext: ['groups' => ['etablissement:read:list']]
-        ),
-        new GetCollection(
             uriTemplate: '/filter',
             normalizationContext: ['groups' => ['search:read']]
         ),
