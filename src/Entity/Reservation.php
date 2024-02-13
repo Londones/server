@@ -13,6 +13,9 @@ use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Traits\TimestampableTrait;
 use App\Repository\ReservationRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiFilter;
+use App\Filter\MonthFilter;
+use App\Filter\MonthStatusFilter;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: '`reservation`')]
@@ -27,6 +30,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Delete(),
     ]
 )]
+
+#[ApiFilter(MonthFilter::class)]
+#[ApiFilter(MonthStatusFilter::class)]
+
 class Reservation
 {
     // use TimestampableTrait;

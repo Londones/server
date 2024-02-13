@@ -20,6 +20,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
+use App\Filter\GeoLocationFilter;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -46,21 +47,26 @@ use App\State\EtablissementProcessor;
     ]
 )]
 
-#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial'])]
+#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial', 'ville' => 'ipartial', 'codePostal' => 'ipartial'])]
+#[ApiFilter(GeoLocationFilter::class)]
 #[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
+
+    // use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read', 'search:read'])]
+    #[Groups(['etablissement:read', 'search:read', 'prestation:write'])]
     private ?int $id = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
+
+    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 

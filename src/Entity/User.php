@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Attribute;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,6 +27,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Entity\Etablissement;
+use App\Filter\RoleFilter;
+use App\Filter\MonthUserFilter;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -37,14 +40,17 @@ use App\Entity\Etablissement;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read']]),
+        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]),
         new Patch(),
         new Delete(),
     ]
 )]
+#[ApiResource(paginationEnabled: false)]
+#[ApiFilter(RoleFilter::class)]
+#[ApiFilter(MonthUserFilter::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    // use TimestampableTrait;
+    use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -57,12 +63,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -109,15 +115,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Feedback::class)]
     private Collection $feedback;
 
-    #[ORM\OneToMany(mappedBy: 'prestataire', targetEntity: DemandePrestataire::class)]
-    private Collection $validationPrestataire;
-
     public function __construct()
     {
         $this->etablissement = new ArrayCollection();
         $this->reservationsClient = new ArrayCollection();
         $this->feedback = new ArrayCollection();
-        $this->validationPrestataire = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -351,36 +353,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($feedback->getClient() === $this) {
                 $feedback->setClient(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, DemandePrestataire>
-     */
-    public function getValidationPrestataire(): Collection
-    {
-        return $this->validationPrestataire;
-    }
-
-    public function addValidationPrestataire(DemandePrestataire $validationPrestataire): static
-    {
-        if (!$this->validationPrestataire->contains($validationPrestataire)) {
-            $this->validationPrestataire->add($validationPrestataire);
-            $validationPrestataire->setPrestataire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeValidationPrestataire(DemandePrestataire $validationPrestataire): static
-    {
-        if ($this->validationPrestataire->removeElement($validationPrestataire)) {
-            // set the owning side to null (unless already changed)
-            if ($validationPrestataire->getPrestataire() === $this) {
-                $validationPrestataire->setPrestataire(null);
             }
         }
 
