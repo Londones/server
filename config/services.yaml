@@ -35,3 +35,15 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Filter\MonthFilter:
+        tags: [ 'api_platform.doctrine.orm.query_filter' ]
+
+    App\Filter\MonthUserFilter:
+        tags: [ 'api_platform.doctrine.orm.query_filter' ]
+
+    App\Filter\MonthStatusFilter:
+        tags: [ 'api_platform.doctrine.orm.query_filter' ]
+
+    App\Filter\RoleFilter:
+        tags: [ 'api_platform.doctrine.orm.query_filter' ]

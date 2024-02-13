@@ -20,7 +20,13 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
-
+        dql:
+            datetime_functions:
+                month: DoctrineExtensions\Query\Postgresql\Month
+            string_functions:
+                TO_DATE: App\Doctrine\ToDateFunction
+                DATE_PART: App\Doctrine\DatePartFunction
+                JSON_GET_TEXT: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Postgresql\JsonGetText
 when@test:
     doctrine:
         dbal:
