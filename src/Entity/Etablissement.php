@@ -62,11 +62,11 @@ class Etablissement
     #[Groups(['etablissement:read', 'search:read'])]
     private ?int $id = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 
