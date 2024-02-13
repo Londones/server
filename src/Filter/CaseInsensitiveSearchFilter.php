@@ -4,7 +4,6 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractFilter;
 use Doctrine\ORM\QueryBuilder;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 
-
 class CaseInsensitiveSearchFilter extends AbstractFilter
 {
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
