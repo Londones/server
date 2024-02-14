@@ -112,5 +112,6 @@
   "Provider_Page_See_More_Pictures": "See {{imageList}} More Pictures",
   "Reservation_Page_Selected_Service": "1. Selected Service",
   "Reservation_Page_Selected_Date": "3. Date & Time Selection",
-  "Reservation_Page_Select_Employee_Placeholder": "Select an Employee"
+  "Reservation_Page_Select_Employee_Placeholder": "Select an Employee",
+  "Common_See_More" : "See more"
 }

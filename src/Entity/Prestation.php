@@ -42,22 +42,14 @@ use ApiPlatform\Metadata\Link;
         new Delete(),
     ]
 )]
-
-#[ApiResource(paginationEnabled: false)]
-#[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes'])]
-#[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_PARTIAL, properties: ['employes.nom'])]
-
 class Prestation
 {
-    // use TimestampableTrait;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['etablissement:read:public', 'prestation:read'])]
     private ?int $id = null;
 
-    // #[ApiFilter(CustomSearchFilter::class)]
     #[Assert\Length(min: 5)]
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create', 'reservation:read'])]
     #[ORM\Column(length: 255, nullable: true)]
