@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
 use ApiPlatform\Metadata\Link;
+use App\Filter\GeoLocationFilter;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -30,8 +31,8 @@ use ApiPlatform\Metadata\Link;
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
         new GetCollection(
-            uriTemplate: '/public/etablissementsList',
-            normalizationContext: ['groups' => ['etablissement:read:list']]
+            uriTemplate: '/filter',
+            normalizationContext: ['groups' => ['search:read']]
         ),
         new GetCollection(
             uriTemplate: '/prestataires/{id}/etablissements',
@@ -54,7 +55,8 @@ use ApiPlatform\Metadata\Link;
     ]
 )]
 
-#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial'])]
+#[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial', 'ville' => 'ipartial', 'codePostal' => 'ipartial'])]
+#[ApiFilter(GeoLocationFilter::class)]
 #[ApiResource(processor: EtablissementProcessor::class)]
 class Etablissement
 {
@@ -67,11 +69,12 @@ class Etablissement
     #[Groups(['etablissement:read', 'search:read', 'prestation:write'])]
     private ?int $id = null;
 
+
     #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 
