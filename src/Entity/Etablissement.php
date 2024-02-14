@@ -68,7 +68,7 @@ class Etablissement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read', 'search:read', 'prestation:write', 'employe:read', 'prestation:read'])]
+    #[Groups(['etablissement:read', 'search:read', 'prestation:write', 'employe:read', 'prestation:read', 'employe:write', 'employ:read', 'employe:update'])]
     private ?int $id = null;
 
 
