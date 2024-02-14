@@ -111,6 +111,9 @@
   "Provider_Page_Opening_Hours": "Horarios de apertura",
   "Provider_Page_See_More_Pictures": "Ver {{imageList}} fotos adicionales",
   "Reservation_Page_Selected_Service": "1. Servicio seleccionado",
+  "Reservation_Page_Selected_Employee": "2. Empleado seleccionado",
   "Reservation_Page_Selected_Date": "3. Selección de fecha y hora",
-  "Reservation_Page_Select_Employee_Placeholder": "Seleccionar empleado"
+  "Reservation_Page_Select_Employee_Placeholder": "Seleccionar empleado",
+  "Common_See_More": "Ver más",
+  "Common_Feedbacks": "({{count}} comentarios)"
 }
