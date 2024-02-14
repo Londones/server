@@ -20,6 +20,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
+use ApiPlatform\Metadata\Link;
 use App\Filter\GeoLocationFilter;
 
 #[Vich\Uploadable]
@@ -32,6 +33,13 @@ use App\Filter\GeoLocationFilter;
         new GetCollection(
             uriTemplate: '/filter',
             normalizationContext: ['groups' => ['search:read']]
+        ),
+        new GetCollection(
+            uriTemplate: '/prestataires/{id}/etablissements',
+            uriVariables: [
+                'id' => new Link(fromClass: User::class, fromProperty: 'id', toProperty: 'prestataire')
+            ],
+            normalizationContext: ['groups' => ['etablissement:read']]
         ),
         new Post(
             denormalizationContext: ['groups' => ['etablissement:create']],
@@ -120,11 +128,15 @@ class Etablissement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $codePostal = null;
 
+    #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Reservation::class)]
+    private Collection $reservations;
+
     public function __construct()
     {
         $this->prestation = new ArrayCollection();
         $this->employes = new ArrayCollection();
         $this->imageEtablissements = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -350,6 +362,36 @@ class Etablissement
     public function setKbisName(?string $kbisName): static
     {
         $this->kbisName = $kbisName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setEtablissement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
+            if ($reservation->getEtablissement() === $this) {
+                $reservation->setEtablissement(null);
+            }
+        }
 
         return $this;
     }
