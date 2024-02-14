@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
 use ApiPlatform\Metadata\Link;
 use App\Filter\GeoLocationFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -55,6 +56,7 @@ use App\Filter\GeoLocationFilter;
     ]
 )]
 
+#[ApiFilter(BooleanFilter::class, properties: ['validation'])]
 #[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial', 'ville' => 'ipartial', 'codePostal' => 'ipartial'])]
 #[ApiFilter(GeoLocationFilter::class)]
 #[ApiResource(processor: EtablissementProcessor::class)]
