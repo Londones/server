@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Filter\MonthFilter;
 use App\Filter\MonthStatusFilter;
+use ApiPlatform\Metadata\Link;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: '`reservation`')]
@@ -24,6 +25,13 @@ use App\Filter\MonthStatusFilter;
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
     operations: [
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/employes/{id}/reservations',
+            uriVariables: [
+                'id' => new Link(fromClass: Employe::class, fromProperty: 'id', toProperty: 'employe')
+            ],
+            normalizationContext: ['groups' => ['reservation:read']]
+        ),
         new Post(),
         new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
         new Patch(denormalizationContext: ['groups'=> 'reservation:update']),
@@ -37,7 +45,7 @@ use App\Filter\MonthStatusFilter;
 class Reservation
 {
     // use TimestampableTrait;
-    
+    #[Groups(['reservation:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

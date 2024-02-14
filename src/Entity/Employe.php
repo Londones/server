@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use ApiPlatform\Metadata\Link;
 
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
@@ -24,6 +25,13 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
         new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new GetCollection(
+            uriTemplate: '/etablissements/{id}/employes',
+            uriVariables: [
+                'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
+            ],
+            normalizationContext: ['groups' => ['employe:read']]
+        ),
         new Post(denormalizationContext: ['groups' => ['reservation:write']]),
         new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"]),
         new Patch(denormalizationContext: ['groups' => ['employe:update']]),
@@ -35,7 +43,7 @@ class Employe
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['prestation:read', 'reservation:read'])]
+    #[Groups(['prestation:read', 'reservation:read', 'employe:read'])]
     private ?int $id = null;
 
     #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]

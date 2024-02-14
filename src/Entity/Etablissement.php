@@ -20,6 +20,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
+use ApiPlatform\Metadata\Link;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -31,6 +32,13 @@ use App\State\EtablissementProcessor;
         new GetCollection(
             uriTemplate: '/public/etablissementsList',
             normalizationContext: ['groups' => ['etablissement:read:list']]
+        ),
+        new GetCollection(
+            uriTemplate: '/prestataires/{id}/etablissements',
+            uriVariables: [
+                'id' => new Link(fromClass: User::class, fromProperty: 'id', toProperty: 'prestataire')
+            ],
+            normalizationContext: ['groups' => ['etablissement:read']]
         ),
         new Post(
             denormalizationContext: ['groups' => ['etablissement:create']],

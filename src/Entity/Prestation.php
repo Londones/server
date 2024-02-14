@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use ApiPlatform\Metadata\Link;
 
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ORM\Table(name: '`prestation`')]
@@ -28,6 +29,13 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
         new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
+        new GetCollection(
+            uriTemplate: '/etablissements/{id}/prestations',
+            uriVariables: [
+                'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
+            ],
+            normalizationContext: ['groups' => ['prestation:read']]
+        ),
         new Post(),
         new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
         new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
