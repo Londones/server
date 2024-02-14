@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use Doctrine\DBAL\Types\Types;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,10 +17,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['category:read', 'date:read']],
+    normalizationContext: ['groups' => ['category:read']],
     denormalizationContext: ['groups' => ['category:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(normalizationContext: ['groups' => ['category:read']]),
         new Post(),
         new Get(),
         new Patch(),
@@ -31,7 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Category
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[Groups(['category:read'])]
     #[ORM\Id]
@@ -40,17 +38,23 @@ class Category
     private ?int $id = null;
 
     // #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
-    #[Groups(['category:read', 'category:write', 'etablissement:read:public'])]
+    #[Groups(['category:read', 'category:write', 'etablissement:read:public', 'prestation:read', 'prestation:write'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
     #[Groups(['category:read'])]
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Prestation::class)]
     private Collection $prestations;
+    
+    #[Groups(['category:read'])]
+    #[ORM\ManyToMany(targetEntity: Critere::class, inversedBy: 'categories')]
+    private Collection $criteres;
+
 
     public function __construct()
     {
         $this->prestations = new ArrayCollection();
+        $this->criteres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -99,4 +103,29 @@ class Category
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Critere>
+     */
+    public function getCriteres(): Collection
+    {
+        return $this->criteres;
+    }
+
+    public function addCritere(Critere $critere): static
+    {
+        if (!$this->criteres->contains($critere)) {
+            $this->criteres->add($critere);
+        }
+
+        return $this;
+    }
+
+    public function removeCritere(Critere $critere): static
+    {
+        $this->criteres->removeElement($critere);
+
+        return $this;
+    }
+
 }
