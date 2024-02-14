@@ -17,10 +17,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['category:read', 'date:read']],
+    normalizationContext: ['groups' => ['category:read']],
     denormalizationContext: ['groups' => ['category:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(normalizationContext: ['groups' => ['category:read']]),
         new Post(),
         new Get(),
         new Patch(),
@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Category
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
     #[Groups(['category:read'])]
     #[ORM\Id]
@@ -38,7 +38,7 @@ class Category
     private ?int $id = null;
 
     // #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
-    #[Groups(['category:read', 'category:write', 'etablissement:read:public'])]
+    #[Groups(['category:read', 'category:write', 'etablissement:read:public', 'prestation:read', 'prestation:write'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 

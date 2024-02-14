@@ -51,7 +51,7 @@
   "Common_Validate_Edit": "Valider les modifications",
   "Common_Yes": "Oui",
   "Common_No": "Non",
-  "Common_Error": "Erreur",
+  "Common_Error_Reason": "Erreur",
   "Common_Error_Message": "Une erreur est survenue",
   "Common_Employee": "Collaborateur",
   "Common_Employees": "Collaborateurs",
@@ -113,6 +113,8 @@
   "Reservation_Page_Selected_Service": "1. Prestation sélectionnée",
   "Reservation_Page_Selected_Employee": "2. Choisir un employé",
   "Reservation_Page_Selected_Date": "3. Choix de la date & heure",
-  "Reservation_Page_Select_Employee_Placeholder": "Selectionnez un employé"
-  
+  "Reservation_Page_Select_Employee_Placeholder": "Selectionnez un employé",
+  "Common_See_More" : "Voir plus",
+  "Common_Feedbacks" : "Avis"
+
 }

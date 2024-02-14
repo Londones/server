@@ -51,7 +51,7 @@
   "Common_Validate_Edit": "Validate Edits",
   "Common_Yes": "Yes",
   "Common_No": "No",
-  "Common_Error": "Error",
+  "Common_Error_Reason": "Error",
   "Common_Error_Message": "An error occurred",
   "Common_Employee": "Employee",
   "Common_Employees": "Employees",
@@ -112,5 +112,6 @@
   "Provider_Page_See_More_Pictures": "See {{imageList}} More Pictures",
   "Reservation_Page_Selected_Service": "1. Selected Service",
   "Reservation_Page_Selected_Date": "3. Date & Time Selection",
-  "Reservation_Page_Select_Employee_Placeholder": "Select an Employee"
+  "Reservation_Page_Select_Employee_Placeholder": "Select an Employee",
+  "Common_See_More" : "See more"
 }

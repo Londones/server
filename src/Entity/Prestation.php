@@ -24,12 +24,12 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ORM\Table(name: '`prestation`')]
 #[ApiResource(
-    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read']],
+    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read'], "enable_max_depth"=>"true"],
     denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
-        new GetCollection(),
+        new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read'],  "enable_max_depth"=>"true"]),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
         new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
         new Delete(),
     ]
@@ -43,45 +43,55 @@ class Prestation
     private ?int $id = null;
 
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create', 'reservation:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $titre = null;
 
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $duree = null;
 
     #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $prix = null;
 
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $description = null;
 
-    #[Groups(['etablissement:read:public', 'prestation:read'])]
+    #[Groups(['etablissement:read:public', 'prestation:read', 'prestation:write'])]
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     private ?Category $category = null;
 
+    #[Groups(['prestation:read', 'prestation:write'])]
     #[ORM\ManyToOne(inversedBy: 'prestation')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     private ?Etablissement $etablissement = null;
 
-    #[Groups(['prestation:read'])]
+    // #[Groups(['prestation:read'])]
     #[ORM\ManyToMany(targetEntity: Employe::class, mappedBy: 'prestation')]
     #[MaxDepth(1)]
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Reservation::class)]
+    #[MaxDepth(1)]
     private Collection $reservations;
 
-    #[Groups(['etablissement:read:public'])]
+    // #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
+    #[MaxDepth(1)]
     private Collection $feedback;
   
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $note_generale = null;
 
     public function __construct()
