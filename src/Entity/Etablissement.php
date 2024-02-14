@@ -66,11 +66,11 @@ class Etablissement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read', 'search:read', 'prestation:write'])]
+    #[Groups(['etablissement:read', 'search:read', 'prestation:write', 'employe:read', 'prestation:read'])]
     private ?int $id = null;
 
 
-    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read', 'employe:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 

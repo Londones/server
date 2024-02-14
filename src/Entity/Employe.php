@@ -21,8 +21,8 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
 #[ApiResource(
-    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read']],
-    denormalizationContext: ['groups' => ['employe:write', 'date:write']],
+    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"],
+    denormalizationContext: ['groups' => ['employe:write', 'date:write'], "enable_max_depth"=>"true"],
     operations: [
         new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
         new GetCollection(
@@ -48,17 +48,21 @@ class Employe
 
     #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     private ?string $nom = null;
 
     #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     private ?string $prenom = null;
 
     #[Groups(['employe:read', 'employe:update'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $horraires_service = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $imageName = null;
 
     #[Groups(['employe:update', 'etablissement:read:public'])]
@@ -69,18 +73,20 @@ class Employe
         maxSizeMessage: 'Votre fichier fait {{ size }} et ne doit pas dépasser {{ limit }}',
         mimeTypesMessage: 'Format accepté : png/jpeg'
     )]
+    #[MaxDepth(1)]
     private ?File $imageFile = null;
 
     #[Groups(['employe:read', 'employe:update', 'etablissement:read:public'])]
-    #[MaxDepth(1)]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $description = null;
 
+    #[Groups(['employe:read', 'employe:update'])]
     #[ORM\ManyToOne(inversedBy: 'employes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     private ?Etablissement $etablissement = null;
 
-    
     #[Groups(['employe:read'])]
     #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
