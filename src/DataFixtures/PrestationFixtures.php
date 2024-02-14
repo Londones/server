@@ -113,6 +113,7 @@ class PrestationFixtures extends Fixture implements DependentFixtureInterface
             $Reservation->setClient($this->getReference('user' . $randomClient));
             $Reservation->setPrestation($Prestation);
             $Reservation->setEmploye($this->getReference('employe' . $randomEtablissement . 'etablissement' . $randomEtablissement));
+            $Reservation->setEtablissement($this->getReference('etablissement' . $randomEtablissement));
             $randomStatus = $status[array_rand($status)];
             $Reservation->setStatus($randomStatus);
             $randomCrenau = $creneaux[array_rand($creneaux)];
