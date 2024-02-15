@@ -50,6 +50,7 @@ use App\Filter\MonthUserFilter;
 #[ApiFilter(MonthUserFilter::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    use TimestampableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
