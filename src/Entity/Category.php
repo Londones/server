@@ -31,7 +31,7 @@ class Category
 {
     // use TimestampableTrait;
 
-    #[Groups(['category:read'])]
+    #[Groups(['category:read', 'prestation:read', 'prestation:write'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
