@@ -163,5 +163,12 @@
   "Common_saturday": "Sábado",
   "Common_sunday": "Domingo",
   "Search_Km": "¿Kilómetros?",
-  "Search_Autour": "Alrededor mío"
+  "Search_Autour": "Alrededor mío",
+  "Reservation_Futur": "Reservas futuras",
+  "Reservation_Cancelled": "Reservas canceladas",
+  "Reservation_Past": "Reservas pasadas",
+  "User_Profil_Information": "Información personal",
+  "User_Reservations_Futur_Title": "Reservas futuras del usuario",
+  "User_Reservations": "Mis Reservas",
+  "Take_Reservation": "Hacer una reserva"
 }
