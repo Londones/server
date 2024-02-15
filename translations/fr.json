@@ -61,6 +61,7 @@
   "Common_Go_Back": "Retour",
   "Common_Hours": "Heures",
   "Common_Minutes": "Minutes",
+  "Common_My_Account": "Mon compte",
   "Header_Provider_Phrase": "Je suis prestataire",
   "Login_ForgotPassword": "Mot de passe oublié ?",
   "Login_NoAccount": "Pas encore de compte ?",
@@ -167,7 +168,7 @@
   "Reservation_Cancelled": "Réservation(s) annulée(s)",
   "Reservation_Past": "Réservation(s) passée(s)",
   "User_Profil_Information": "Informations personnelles",
-  "User_Reservations_Futur_Title" : "Mes rendez-vous à venir",
-  "User_Reservations" : "Mes Réservation",
-  "Take_Reservation" : "Prendre un rendez-vous"
+  "User_Reservations_Futur_Title": "Mes rendez-vous à venir",
+  "User_Reservations": "Mes Réservation",
+  "Take_Reservation": "Prendre un rendez-vous"
 }
