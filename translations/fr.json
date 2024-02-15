@@ -162,5 +162,12 @@
   "Common_saturday": "Samedi",
   "Common_sunday": "Dimanche",
   "Search_Km": "Kilomètres ?",
-  "Search_Autour": "Autour de moi"
+  "Search_Autour": "Autour de moi",
+  "Reservation_Futur": "Réservation(s) à venir",
+  "Reservation_Cancelled": "Réservation(s) annulée(s)",
+  "Reservation_Past": "Réservation(s) passée(s)",
+  "User_Profil_Information": "Informations personnelles",
+  "User_Reservations_Futur_Title" : "Mes rendez-vous à venir",
+  "User_Reservations" : "Mes Réservation",
+  "Take_Reservation" : "Prendre un rendez-vous"
 }
