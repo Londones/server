@@ -111,9 +111,11 @@
   "Provider_Page_Opening_Hours": "Opening Hours",
   "Provider_Page_See_More_Pictures": "See {{imageList}} More Pictures",
   "Reservation_Page_Selected_Service": "1. Selected Service",
+  "Reservation_Page_Selected_Employee": "2. Selected Employee",
   "Reservation_Page_Selected_Date": "3. Date & Time Selection",
   "Reservation_Page_Select_Employee_Placeholder": "Select an Employee",
   "Common_See_More" : "See more",
+  "Common_Feedbacks": "({{count}} feedbacks)",
   "Etablissement_Register_Salon_Name_Required": "Salon name is required",
   "Etablissement_Register_Kbis_Required": "Kbis is required",
   "Etablissement_Register_Prestataire_Last_Name_Required": "Service provider's last name is required",
@@ -160,5 +162,5 @@
   "Common_saturday": "Saturday",
   "Common_sunday": "Sunday",
   "Search_Km": "Kilometers?",
-  "Search_Autour": "Around me",  
+  "Search_Autour": "Around me"  
 }

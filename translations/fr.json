@@ -115,7 +115,7 @@
   "Reservation_Page_Selected_Date": "3. Choix de la date & heure",
   "Reservation_Page_Select_Employee_Placeholder": "Selectionnez un employé",
   "Common_See_More": "Voir plus",
-  "Common_Feedbacks": "Avis",
+  "Common_Feedbacks": "({{count}} avis)",
   "Etablissement_Register_Salon_Name_Required": "Le nom du salon est requis",
   "Etablissement_Register_Kbis_Required": "Le Kbis est requis",
   "Etablissement_Register_Prestataire_Last_Name_Required": "Le nom de famille du prestataire est requis",
