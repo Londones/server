@@ -21,6 +21,7 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: '`reservation`')]
 #[ApiResource(
+    security: "is_granted('ROLE_USER')",
     normalizationContext: ['groups' => ['reservation:read', 'date:read']],
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
     operations: [
@@ -34,8 +35,13 @@ use ApiPlatform\Metadata\Link;
         ),
         new Post(),
         new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
-        new Patch(denormalizationContext: ['groups'=> 'reservation:update']),
-        new Delete(),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object.getOwner() == user",
+            denormalizationContext: ['groups' => 'reservation:update']
+        ),
+        new Delete(
+            security: "object.getOwner() == user"
+        ),
     ]
 )]
 
@@ -184,5 +190,10 @@ class Reservation
         $this->etablissement = $etablissement;
 
         return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->client;
     }
 }

@@ -38,10 +38,16 @@ use App\Filter\MonthUserFilter;
     normalizationContext: ['groups' => ['user:read', 'date:read']],
     denormalizationContext: ['groups' => ['user:write', 'user:write:update', 'date:write']],
     operations: [
-        new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]
+        ),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]),
-        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER')"),
+        new Get(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object.getOwner() == user",
+            normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]
+        ),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object.getOwner() == user"),
         new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
@@ -76,7 +82,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Groups(['user:read:full', 'user:read', 'user:write', 'user:write:update'])]
+    #[Groups(['user:write', 'user:write:update'])]
     #[ORM\Column]
     private ?string $password = null;
 
@@ -356,6 +362,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
+        return $this;
+    }
+
+    public function getOwner()
+    {
         return $this;
     }
 }

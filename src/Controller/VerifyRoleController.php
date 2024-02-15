@@ -15,6 +15,7 @@ class VerifyRoleController extends AbstractController
     public function verifyUserRole(Request $request, EntityManagerInterface $entityManager)
     {
         $email = $request->getPayload()->get('email');
+        $regularUser = $request->getPayload()->get('regularUser');
 
         // Get the user details.
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
@@ -22,11 +23,11 @@ class VerifyRoleController extends AbstractController
         if ($user) {
 
             $roles = $user->getRoles();
-            if (!in_array('ROLE_ADMIN', $roles) && !in_array('ROLE_PRESTATAIRE', $roles)) {
-                return new JsonResponse(['code' => 403, 'message' => 'User does not have the required role.'], 403);
+            if (!$regularUser) {
+                if (!in_array('ROLE_ADMIN', $roles) && !in_array('ROLE_PRESTATAIRE', $roles)) {
+                    return new JsonResponse(['code' => 403, 'message' => 'User does not have the required role.'], 403);
+                }
             }
-
-            $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
             // Return the user details.
             return new JsonResponse([
