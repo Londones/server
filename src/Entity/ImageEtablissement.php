@@ -22,6 +22,7 @@ class ImageEtablissement
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['etablissement:read:public'])]
     private ?string $imageName = null;
 
     #[Vich\UploadableField(mapping: 'etablissement_images', fileNameProperty: 'imageName')]

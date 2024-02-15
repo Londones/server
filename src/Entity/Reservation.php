@@ -13,6 +13,10 @@ use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Traits\TimestampableTrait;
 use App\Repository\ReservationRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiFilter;
+use App\Filter\MonthFilter;
+use App\Filter\MonthStatusFilter;
+use ApiPlatform\Metadata\Link;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: '`reservation`')]
@@ -21,16 +25,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
     operations: [
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/etablissements/{id}/reservations',
+            uriVariables: [
+                'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
+            ],
+            normalizationContext: ['groups' => ['reservation:read']]
+        ),
         new Post(),
         new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
         new Patch(denormalizationContext: ['groups'=> 'reservation:update']),
         new Delete(),
     ]
 )]
+
+#[ApiFilter(MonthFilter::class)]
+#[ApiFilter(MonthStatusFilter::class)]
+
 class Reservation
 {
     // use TimestampableTrait;
-    
+    #[Groups(['reservation:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -66,6 +81,9 @@ class Reservation
     #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jour = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    private ?Etablissement $etablissement = null;
 
     public function getId(): ?int
     {
@@ -152,6 +170,18 @@ class Reservation
     public function setJour(?string $jour): static
     {
         $this->jour = $jour;
+
+        return $this;
+    }
+
+    public function getEtablissement(): ?Etablissement
+    {
+        return $this->etablissement;
+    }
+
+    public function setEtablissement(?Etablissement $etablissement): static
+    {
+        $this->etablissement = $etablissement;
 
         return $this;
     }

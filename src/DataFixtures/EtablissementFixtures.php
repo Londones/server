@@ -9,11 +9,23 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Faker\Factory;
-use Symfony\Component\HttpFoundation\File\File;
+use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
+
 
 class EtablissementFixtures extends Fixture implements DependentFixtureInterface
 {
+    private $fileUploader;
+    private $filesystem;
+
+    public function __construct(FileUploader $fileUploader, Filesystem $filesystem)
+    {
+        $this->fileUploader = $fileUploader;
+
+        $this->filesystem = $filesystem;
+    }
+
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create("fr_FR");
@@ -61,31 +73,31 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
         ];
 
         $lats = [
-            48.8428732,
-            48.8643964,
-            48.8471871,
-            48.8459719,
-            48.8616437,
-            48.8707028,
-            48.8719778,
-            48.8760842,
-            48.8997316,
-            48.8965983,
-            48.8872136
+            48.8428611,
+            48.8671134,
+            48.8472264,
+            48.8459647,
+            48.8616884,
+            48.8706538,
+            48.8719157,
+            48.8761196,
+            48.8997573,
+            48.8897734,
+            48.887389
         ];
 
         $lngs = [
-            2.3996645,
-            2.3786389,
-            2.3870859,
-            2.2775704,
-            2.3648959,
-            2.3335596,
-            2.3707953,
-            2.3227861,
-            2.2875711,
-            2.3287002,
-            2.3541341
+            2.3996666,
+            2.3660679,
+            2.3872668,
+            2.2775933,
+            2.3648706,
+            2.3336093,
+            2.3707818,
+            2.3228499,
+            2.2875812,
+            2.3266478,
+            2.3541197
         ];
 
         $noms = [
@@ -128,45 +140,51 @@ class EtablissementFixtures extends Fixture implements DependentFixtureInterface
         ];
 
         // create random etablissements
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 0; $i < count($noms); $i++) {
             $etablissement = new Etablissement;
-            $etablissement->setNom($noms[$i - 1]);
-            $etablissement->setAdresse($adresses[$i - 1]);
-            $etablissement->setKbis("Kbis-" . $i);
+            $etablissement->setNom($noms[$i]);
+            $etablissement->setAdresse($adresses[$i]);
             $etablissement->setValidation(true);
-            $etablissement->setPrestataire($this->getReference('prestataire' . $i));
-            $etablissement->setHorrairesOuverture("-,10:00-19:00,10:00-19:00,10:00-20:00,10:00-19:00,10:00-19:00,-");
-            $etablissement->setJoursOuverture("Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche");
-            $etablissement->setLatitude($lats[$i - 1]);
-            $etablissement->setLongitude($lngs[$i - 1]);
-            $etablissement->setVille($villes[$i - 1]);
-            $etablissement->setCodePostal($codesPostaux[$i - 1]);
+            $etablissement->setPrestataire($this->getReference('prestataire' . ($i + 1)));
+            $etablissement->setHorairesOuverture("{\"lundi\":{\"checked\":true,\"timeRange\":{\"startTime\":\"09:00\",\"endTime\":\"19:00\"}},\"mardi\":{\"checked\":true,\"timeRange\":{\"startTime\":\"09:00\",\"endTime\":\"19:00\"}},\"mercredi\":{\"checked\":true,\"timeRange\":{\"startTime\":\"09:00\",\"endTime\":\"19:00\"}},\"jeudi\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}},\"vendredi\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}},\"samedi\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}},\"dimanche\":{\"checked\":false,\"timeRange\":{\"startTime\":\"\",\"endTime\":\"\"}}}");
+            $etablissement->setLatitude($lats[$i]);
+            $etablissement->setLongitude($lngs[$i]);
+            $etablissement->setVille($villes[$i]);
+            $etablissement->setCodePostal($codesPostaux[$i]);
 
+            for ($j = 0; $j < 10; $j++) {
+                $copyFileName = uniqid() . '_' . 'etablissement' . $j . '.jpg';
+                $originalFilePath = 'public/fixtures/etablissement' . $j . '.jpg';
+                $copyFilePath = $this->fileUploader->getTargetDirectory() . '/' . $copyFileName;
+                $this->filesystem->copy($originalFilePath, $copyFilePath, true);
 
-            for ($j = 1; $j <= 10; $j++) {
-                $imageEtablissement = new ImageEtablissement();
-                $imageEtablissement->setImageName('image' . $j . '.jpg');
                 $file = new UploadedFile(
-                    'public/fixtures/etablissement' . $j - 1 . '.jpg',
-                    'image.png',
-                    'image/png',
+                    $copyFilePath,
+                    $copyFileName,
+                    'image/jpeg', // Adjust the mime type as necessary
                     null,
                     true
                 );
-                $imageEtablissement->setImageFile($file);
+
+                // Upload the copied file
+                $imageEtablissementName = $this->fileUploader->upload($file);
+
+                // Create and persist ImageEtablissement entity
+                $imageEtablissement = new ImageEtablissement();
+                $imageEtablissement->setImageName($imageEtablissementName);
                 $imageEtablissement->setEtablissement($etablissement);
                 $manager->persist($imageEtablissement);
 
                 $employe = new Employe();
-                $employe->setNom($nomsEmploye[$j - 1]);
-                $employe->setPrenom($prenomsEmploye[$j - 1]);
+                $employe->setNom($nomsEmploye[$j]);
+                $employe->setPrenom($prenomsEmploye[$j]);
                 $employe->setEtablissement($etablissement);
                 $employe->setDescription("Je m'appelle " . $employe->getPrenom() . " " . $employe->getNom() . " et je suis employé dans l'établissement " . $etablissement->getNom() . ".");
-                $this->addReference('employe' . $j . 'etablissement' . $i, $employe);
+                $this->addReference('employe' . ($j + 1) . 'etablissement' . ($i + 1), $employe);
                 $manager->persist($employe);
             }
 
-            $this->addReference('etablissement' . $i, $etablissement);
+            $this->addReference('etablissement' . ($i + 1), $etablissement);
             $manager->persist($etablissement);
         }
 
