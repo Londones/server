@@ -22,11 +22,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     normalizationContext: ['groups' => ['critere:read', 'category:read', 'prestation:read']],
     denormalizationContext: ['groups' => ['critere:write']],
     operations: [
-        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
-        new Post(),
+        new GetCollection(normalizationContext: ["enable_max_depth" => "true"]),
+        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
         new Get(),
-        new Patch(),
-        new Delete(),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
     ]
 )]
 

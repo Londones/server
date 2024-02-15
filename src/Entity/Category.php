@@ -21,10 +21,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['category:write']],
     operations: [
         new GetCollection(normalizationContext: ['groups' => ['category:read']]),
-        new Post(),
+        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
         new Get(),
-        new Patch(),
-        new Delete(),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
     ]
 )]
 class Category
@@ -45,7 +45,7 @@ class Category
     #[Groups(['category:read'])]
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Prestation::class)]
     private Collection $prestations;
-    
+
     #[Groups(['category:read'])]
     #[ORM\ManyToMany(targetEntity: Critere::class, inversedBy: 'categories')]
     private Collection $criteres;
@@ -127,5 +127,4 @@ class Category
 
         return $this;
     }
-
 }

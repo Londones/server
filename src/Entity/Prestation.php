@@ -25,10 +25,10 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ORM\Table(name: '`prestation`')]
 #[ApiResource(
-    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read'], "enable_max_depth"=>"true"],
+    normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
-        new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
+        new GetCollection(normalizationContext: ['groups' => ['prestation:read', 'prestation:read:is-logged']]),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/prestations',
             uriVariables: [
@@ -36,10 +36,13 @@ use ApiPlatform\Metadata\Link;
             ],
             normalizationContext: ['groups' => ['prestation:read']]
         ),
-        new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
-        new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
-        new Delete(),
+        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
+        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth" => "true"]),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
+            denormalizationContext: ['groups' => ['prestation:update']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
     ]
 )]
 class Prestation
@@ -51,17 +54,17 @@ class Prestation
     private ?int $id = null;
 
     #[Assert\Length(min: 5)]
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create', 'reservation:read'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'etablissement:create', 'reservation:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[MaxDepth(1)]
     private ?string $titre = null;
 
-    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
+    #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[MaxDepth(1)]
     private ?string $duree = null;
 
-    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read','etablissement:create'])]
+    #[Groups(['prestation:read:is-logged', 'prestation:write', 'etablissement:read:public', 'user:read', 'etablissement:create'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[MaxDepth(1)]
     private ?string $prix = null;
@@ -96,7 +99,7 @@ class Prestation
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     #[MaxDepth(1)]
     private Collection $feedback;
-  
+
     #[Groups(['prestation:read', 'prestation:write', 'etablissement:read:public', 'user:read', 'prestation:update', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     #[MaxDepth(1)]
@@ -284,5 +287,4 @@ class Prestation
 
         return $this;
     }
-
 }

@@ -41,8 +41,8 @@ use App\Filter\MonthUserFilter;
         new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
         new Post(),
         new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]),
-        new Patch(),
-        new Delete(),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
 #[ApiResource(paginationEnabled: false)]

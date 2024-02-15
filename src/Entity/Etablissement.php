@@ -43,6 +43,7 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
             normalizationContext: ['groups' => ['etablissement:read']]
         ),
         new Post(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
             denormalizationContext: ['groups' => ['etablissement:create']],
             inputFormats: ['multipart' => ['multipart/form-data']]
         ),
@@ -51,8 +52,11 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
             uriTemplate: '/public/etablissementPublic/{id}',
             normalizationContext: ['groups' => ['etablissement:read:public']]
         ),
-        new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
-        new Delete(),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
+            denormalizationContext: ['groups' => ['etablissement:update']]
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
     ]
 )]
 

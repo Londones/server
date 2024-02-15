@@ -21,10 +21,10 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
 #[ApiResource(
-    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"],
+    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
-        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new GetCollection(normalizationContext: ["enable_max_depth" => "true"]),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/employes',
             uriVariables: [
@@ -32,9 +32,15 @@ use ApiPlatform\Metadata\Link;
             ],
             normalizationContext: ['groups' => ['employe:read']]
         ),
-        new Post(denormalizationContext: ['groups' => ['employe:write', 'reservation:write']]),
-        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"]),
-        new Patch(denormalizationContext: ['groups' => ['employe:update']]),
+        new Post(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
+            denormalizationContext: ['groups' => ['employe:write', 'reservation:write']]
+        ),
+        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth" => "true"]),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
+            denormalizationContext: ['groups' => ['employe:update']]
+        ),
     ]
 )]
 class Employe
@@ -90,13 +96,13 @@ class Employe
     #[Groups(['employe:read', 'employe:write'])]
     #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
-    private Collection $prestation; 
+    private Collection $prestation;
 
     #[Groups(['employe:read', 'employe:write'])]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Reservation::class)]
     #[MaxDepth(1)]
     private Collection $reservationsEmploye;
-   
+
     #[Groups(['employe:read', 'employe:write'])]
     #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Indisponibilite::class)]
