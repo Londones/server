@@ -61,6 +61,8 @@
   "Common_Go_Back": "Volver",
   "Common_Hours": "Horas",
   "Common_Minutes": "Minutos",
+  "Common_My_Account": "Mi cuenta",
+  "Common_Cancelled": "Cancelado",
   "Header_Provider_Phrase": "Soy proveedor",
   "Login_ForgotPassword": "¿Olvidó su contraseña?",
   "Login_NoAccount": "¿Aún no tienes una cuenta?",
@@ -162,5 +164,15 @@
   "Common_saturday": "Sábado",
   "Common_sunday": "Domingo",
   "Search_Km": "¿Kilómetros?",
-  "Search_Autour": "Alrededor mío"
+  "Search_Autour": "Alrededor mío",
+  "Reservation_Futur": "Reservas futuras",
+  "Reservation_Cancelled": "Reservas canceladas",
+  "Reservation_Past": "Reservas pasadas",
+  "User_Profil_Information": "Información personal",
+  "User_Reservations_Futur_Title": "Reservas futuras del usuario",
+  "User_Reservations": "Mis Reservas",
+  "Take_Reservation": "Hacer una reserva",
+  "Move_Reservation": "Mover la reserva",
+  "Retreive_Reservation": "Recuperar la reserva",
+  "Leave_Feedback": "Dejar un comentario"
 }

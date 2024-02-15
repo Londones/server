@@ -61,6 +61,8 @@
   "Common_Go_Back": "Go Back",
   "Common_Hours": "Hours",
   "Common_Minutes": "Minutes",
+  "Common_My_Account": "My Account",
+  "Common_Cancelled": "Cancelled",
   "Header_Provider_Phrase": "I am a provider",
   "Login_ForgotPassword": "Forgot Password?",
   "Login_NoAccount": "Don't have an account yet?",
@@ -114,7 +116,7 @@
   "Reservation_Page_Selected_Employee": "2. Selected Employee",
   "Reservation_Page_Selected_Date": "3. Date & Time Selection",
   "Reservation_Page_Select_Employee_Placeholder": "Select an Employee",
-  "Common_See_More" : "See more",
+  "Common_See_More": "See more",
   "Common_Feedbacks": "({{count}} feedbacks)",
   "Etablissement_Register_Salon_Name_Required": "Salon name is required",
   "Etablissement_Register_Kbis_Required": "Kbis is required",
@@ -166,8 +168,11 @@
   "Reservation_Futur": "Futur reservations",
   "Reservation_Cancelled": "Cancelled reservations",
   "Reservation_Past": "Past reservations",
-  "User_Profil_Information" : "Personal informations",
-  "User_Reservations_Futur_Title" : "Reservations to come",
-  "User_Reservations" : "My Reservations",
-  "Take_Reservation" : "Book a reservation"
+  "User_Profil_Information": "Personal informations",
+  "User_Reservations_Futur_Title": "Reservations to come",
+  "User_Reservations": "My Reservations",
+  "Take_Reservation": "Book a reservation",
+  "Move_Reservation": "Move a reservation",
+  "Retreive_Reservation": "Retrieve a reservation",
+  "Leave_Feedback": "Leave a feedback"
 }
