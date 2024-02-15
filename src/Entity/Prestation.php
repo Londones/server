@@ -92,7 +92,7 @@ class Prestation
     #[MaxDepth(1)]
     private Collection $reservations;
 
-    // #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public'])]
     #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: Feedback::class)]
     #[MaxDepth(1)]
     private Collection $feedback;

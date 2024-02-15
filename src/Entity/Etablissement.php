@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\State\EtablissementProcessor;
 use ApiPlatform\Metadata\Link;
 use App\Filter\GeoLocationFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -55,6 +56,7 @@ use App\Filter\GeoLocationFilter;
     ]
 )]
 
+#[ApiFilter(BooleanFilter::class, properties: ['validation'])]
 #[ApiFilter(SearchFilter::class, properties: ['prestation.titre' => 'ipartial', 'nom' => 'ipartial', 'prestation.category' => 'ipartial', 'ville' => 'ipartial', 'codePostal' => 'ipartial'])]
 #[ApiFilter(GeoLocationFilter::class)]
 #[ApiResource(processor: EtablissementProcessor::class)]
@@ -66,11 +68,11 @@ class Etablissement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['etablissement:read', 'search:read', 'prestation:write'])]
+
+    #[Groups(['etablissement:read', 'search:read', 'prestation:write', 'employe:read', 'prestation:read', 'employe:write', 'employ:read', 'employe:update', 'prestation:read'])]
     private ?int $id = null;
 
-
-    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read', 'employe:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
