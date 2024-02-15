@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240213154839 extends AbstractMigration
+final class Version20240215010713 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -56,11 +56,12 @@ final class Version20240213154839 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_51C88FADFF631228 ON "prestation" (etablissement_id)');
         $this->addSql('CREATE TABLE refresh_tokens (id INT NOT NULL, refresh_token VARCHAR(128) NOT NULL, username VARCHAR(255) NOT NULL, valid TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_9BACE7E1C74F2195 ON refresh_tokens (refresh_token)');
-        $this->addSql('CREATE TABLE "reservation" (id INT NOT NULL, client_id INT NOT NULL, prestation_id INT NOT NULL, employe_id INT NOT NULL, status VARCHAR(255) NOT NULL, creneau VARCHAR(255) DEFAULT NULL, duree INT DEFAULT NULL, jour VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE "reservation" (id INT NOT NULL, client_id INT NOT NULL, prestation_id INT NOT NULL, employe_id INT NOT NULL, etablissement_id INT DEFAULT NULL, status VARCHAR(255) NOT NULL, creneau VARCHAR(255) DEFAULT NULL, duree INT DEFAULT NULL, jour VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_42C8495519EB6921 ON "reservation" (client_id)');
         $this->addSql('CREATE INDEX IDX_42C849559E45C554 ON "reservation" (prestation_id)');
         $this->addSql('CREATE INDEX IDX_42C849551B65292 ON "reservation" (employe_id)');
-        $this->addSql('CREATE TABLE "user" (id INT NOT NULL, email VARCHAR(255) NOT NULL, nom VARCHAR(255) NOT NULL, prenom VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, roles JSON NOT NULL, image_name VARCHAR(255) DEFAULT NULL, email_verified BOOLEAN NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_42C84955FF631228 ON "reservation" (etablissement_id)');
+        $this->addSql('CREATE TABLE "user" (id INT NOT NULL, email VARCHAR(255) NOT NULL, nom VARCHAR(255) NOT NULL, prenom VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, roles JSON NOT NULL, image_name VARCHAR(255) DEFAULT NULL, email_verified BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649E7927C74 ON "user" (email)');
         $this->addSql('CREATE TABLE messenger_messages (id BIGSERIAL NOT NULL, body TEXT NOT NULL, headers TEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, available_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, delivered_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_75EA56E0FB7336F0 ON messenger_messages (queue_name)');
@@ -93,6 +94,7 @@ final class Version20240213154839 extends AbstractMigration
         $this->addSql('ALTER TABLE "reservation" ADD CONSTRAINT FK_42C8495519EB6921 FOREIGN KEY (client_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE "reservation" ADD CONSTRAINT FK_42C849559E45C554 FOREIGN KEY (prestation_id) REFERENCES "prestation" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE "reservation" ADD CONSTRAINT FK_42C849551B65292 FOREIGN KEY (employe_id) REFERENCES employe (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE "reservation" ADD CONSTRAINT FK_42C84955FF631228 FOREIGN KEY (etablissement_id) REFERENCES etablissement (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
     public function down(Schema $schema): void
@@ -126,6 +128,7 @@ final class Version20240213154839 extends AbstractMigration
         $this->addSql('ALTER TABLE "reservation" DROP CONSTRAINT FK_42C8495519EB6921');
         $this->addSql('ALTER TABLE "reservation" DROP CONSTRAINT FK_42C849559E45C554');
         $this->addSql('ALTER TABLE "reservation" DROP CONSTRAINT FK_42C849551B65292');
+        $this->addSql('ALTER TABLE "reservation" DROP CONSTRAINT FK_42C84955FF631228');
         $this->addSql('DROP TABLE category');
         $this->addSql('DROP TABLE category_critere');
         $this->addSql('DROP TABLE critere');
