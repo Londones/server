@@ -21,7 +21,7 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
 #[ApiResource(
-    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read']],
+    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
         new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
@@ -32,33 +32,37 @@ use ApiPlatform\Metadata\Link;
             ],
             normalizationContext: ['groups' => ['employe:read']]
         ),
-        new Post(denormalizationContext: ['groups' => ['reservation:write']]),
+        new Post(denormalizationContext: ['groups' => ['employe:write', 'reservation:write']]),
         new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"]),
         new Patch(denormalizationContext: ['groups' => ['employe:update']]),
     ]
 )]
 class Employe
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['prestation:read', 'reservation:read', 'employe:read'])]
     private ?int $id = null;
 
-    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]
+    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read', 'employe:write'])]
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     private ?string $nom = null;
 
-    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read'])]
+    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'reservation:read', 'employe:write'])]
     #[ORM\Column(length: 255)]
+    #[MaxDepth(1)]
     private ?string $prenom = null;
 
-    #[Groups(['employe:read', 'employe:update'])]
+    #[Groups(['employe:read', 'employe:update', 'employe:write'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $horraires_service = null;
 
+    #[Groups(['employe:read', 'employe:update', 'employe:write'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $imageName = null;
 
     #[Groups(['employe:update', 'etablissement:read:public'])]
@@ -69,28 +73,31 @@ class Employe
         maxSizeMessage: 'Votre fichier fait {{ size }} et ne doit pas dépasser {{ limit }}',
         mimeTypesMessage: 'Format accepté : png/jpeg'
     )]
+    #[MaxDepth(1)]
     private ?File $imageFile = null;
 
-    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public'])]
-    #[MaxDepth(1)]
+    #[Groups(['employe:read', 'employe:update', 'etablissement:read:public', 'employe:write'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[MaxDepth(1)]
     private ?string $description = null;
 
+    #[Groups(['employe:read', 'employe:update', 'employe:write'])]
     #[ORM\ManyToOne(inversedBy: 'employes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     private ?Etablissement $etablissement = null;
 
-    
-    #[Groups(['employe:read'])]
+    #[Groups(['employe:read', 'employe:write'])]
     #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
     private Collection $prestation; 
 
+    #[Groups(['employe:read', 'employe:write'])]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Reservation::class)]
     #[MaxDepth(1)]
     private Collection $reservationsEmploye;
    
-    #[Groups(['employe:read'])]
+    #[Groups(['employe:read', 'employe:write'])]
     #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Indisponibilite::class)]
     private Collection $indisponibilites;
