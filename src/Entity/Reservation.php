@@ -42,14 +42,14 @@ use ApiPlatform\Metadata\Link;
         ),
         new Get(
             normalizationContext: ['groups' => 'reservation:read', 'user:read'],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+            security: "objet.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
         ),
         new Patch(
-            denormalizationContext: ['groups'=> 'reservation:update'],
+            denormalizationContext: ['groups' => 'reservation:update'],
             security: "object.getOwner() == user"
         ),
         new Delete(
-            security: "object.getOwner() == user"
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
         ),
     ]
 )]
@@ -208,6 +208,6 @@ class Reservation
 
     public function getOwner()
     {
-        return $this->getClient();
+        return $this->client;
     }
 }

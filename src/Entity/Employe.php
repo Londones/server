@@ -23,11 +23,11 @@ use ApiPlatform\Metadata\Link;
 #[Vich\Uploadable]
 #[ApiResource(
     security: "is_granted('ROLE_PRESTATAIRE')",
-    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"],
+    normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
         new GetCollection(
-            normalizationContext:["enable_max_depth" => "true"],
+            normalizationContext: ["enable_max_depth" => "true"],
             security: "is_granted('ROLE_ADMIN')"
         ),
         new GetCollection(
@@ -40,7 +40,7 @@ use ApiPlatform\Metadata\Link;
         ),
         new Post(denormalizationContext: ['groups' => ['employe:write', 'reservation:write']]),
         new Get(
-            normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"],
+            normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth" => "true"],
             security: "object.getOwner() == user"
         ),
         new Patch(denormalizationContext: ['groups' => ['employe:update']]),
@@ -100,13 +100,13 @@ class Employe
     #[Groups(['employe:read', 'employe:write'])]
     #[MaxDepth(1)]
     #[ORM\ManyToMany(targetEntity: Prestation::class, inversedBy: 'employes')]
-    private Collection $prestation; 
+    private Collection $prestation;
 
     #[Groups(['employe:read', 'employe:write'])]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Reservation::class)]
     #[MaxDepth(1)]
     private Collection $reservationsEmploye;
-   
+
     #[Groups(['employe:read', 'employe:write'])]
     #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Indisponibilite::class)]

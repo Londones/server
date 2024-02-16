@@ -47,7 +47,7 @@ class Category
     #[Groups(['category:read'])]
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Prestation::class)]
     private Collection $prestations;
-    
+
     #[Groups(['category:read'])]
     #[ORM\ManyToMany(targetEntity: Critere::class, inversedBy: 'categories')]
     private Collection $criteres;
@@ -129,5 +129,4 @@ class Category
 
         return $this;
     }
-
 }
