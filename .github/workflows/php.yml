@@ -52,6 +52,8 @@ jobs:
       run: |
         php bin/console doctrine:database:create --env=test
         php bin/console doctrine:schema:update --force --env=test
+      env:
+        DATABASE_URL: "pgsql://postgres:postgres@127.0.0.1:5432/test_db"
 
     - name: Run test suite
       run: composer run-script test
