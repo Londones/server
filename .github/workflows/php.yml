@@ -52,12 +52,13 @@ jobs:
       run: |
         php bin/console doctrine:database:create --env=test
         php bin/console doctrine:schema:update --force --env=test
-        php bin/console lexik:jwt:generate-keypair
+        echo "${{ secrets.JWT_SECRET_KEY }}" > /tmp/jwt_secret_key
+        echo "${{ secrets.JWT_PUBLIC_KEY }}" > /tmp/jwt_public_key
       env:
         DATABASE_URL: "pgsql://postgres:postgres@127.0.0.1:5432/test_db"
         MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-        JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+        JWT_SECRET_KEY: /tmp/jwt_secret_key
+        JWT_PUBLIC_KEY: /tmp/jwt_public_key
         JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
 
     - name: Run test suite
