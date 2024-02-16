@@ -57,7 +57,7 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
             inputFormats: ['multipart' => ['multipart/form-data']],
         ),
         new Get(
-            normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']],
+            normalizationContext: ['groups' => ['etablissement:read']],
             security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
         ),
         new Get(

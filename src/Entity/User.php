@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use App\Entity\Traits\TimestampableTrait;
@@ -40,14 +41,20 @@ use App\Filter\MonthUserFilter;
     operations: [
         new GetCollection(
             security: "is_granted('ROLE_ADMIN')",
-            normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]
+            normalizationContext: ['groups' => ['user:read:full', 'date:read', 'etablissement:read']]
         ),
         new Post(),
         new Get(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object.getOwner() == user",
-            normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]
+            security: "is_granted('ROLE_USER') and object.getOwner() == user",
+            normalizationContext: ['groups' => ['user:read', 'etablissement:read']],
         ),
-        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object.getOwner() == user"),
+        new Get(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['user:read:full', 'etablissement:read', 'demande:read']]
+        ),
+        new Patch(
+            security: "is_granted('ROLE_USER') and object.getOwner() == user or is_granted('ROLE_ADMIN')",
+        ),
         new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
@@ -61,7 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read', 'etablissement:read:private'])]
+    #[Groups(['user:read:full', 'etablissement:read:private'])]
     private ?int $id = null;
 
     #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
@@ -87,10 +94,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Length(min: 6)]
-    #[Groups(['user:read:full', 'user:write', 'user:write:update', 'etablissement:create'])]
+    #[Groups(['user:write', 'user:write:update', 'etablissement:create'])]
     private ?string $plainPassword = null;
 
-    #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('EDIT_USER_ROLES', object)")]
+    #[Groups(['user:read:full', 'user:write'])]
     #[ORM\Column]
     private array $roles = [];
 
