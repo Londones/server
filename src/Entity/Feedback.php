@@ -15,19 +15,19 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
-#[ApiResource(
-    uriTemplate: '/prestations/{id}/feedbacks',
-    operations: [new GetCollection],
-    uriVariables: [
-        'id' => new Link(toProperty: 'prestation', fromClass: Prestation::class)
-    ]
-)]
 
 #[ApiResource(
+    security: "is_granted('ROLE_USER')",
     normalizationContext: ['groups' => ['feedback:read', 'etablissement:read:public', 'prestation:read']],
     denormalizationContext: ['groups' => ['feedback:write']],
     operations: [
         new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new GetCollection(
+            uriTemplate: '/prestations/{id}/feedbacks',
+            uriVariables: [
+                'id' => new Link(toProperty: 'prestation', fromClass: Prestation::class)
+            ], 
+        ),
         new Post(normalizationContext: ['groups' => 'prestation:read']),
         new Get(normalizationContext:["enable_max_depth" => "true"]),
     ]

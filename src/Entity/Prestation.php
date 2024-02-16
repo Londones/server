@@ -28,18 +28,31 @@ use ApiPlatform\Metadata\Link;
     normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read'], "enable_max_depth"=>"true"],
     denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
-        new GetCollection(normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']]),
+        new GetCollection(
+            normalizationContext:['groups' => ['prestation:read', 'prestation:read:is-logged']],
+        ),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/prestations',
             uriVariables: [
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
-            normalizationContext: ['groups' => ['prestation:read']]
+            normalizationContext: ['groups' => ['prestation:read']],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
         ),
-        new Post(),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"]),
-        new Patch(denormalizationContext: ['groups'=> ['prestation:update']]),
-        new Delete(),
+        new Post(
+            security: "is_granted('ROLE_PRESTATAIRE')"
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth"=>"true"],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+        ),
+        new Patch(
+            denormalizationContext: ['groups'=> ['prestation:update']],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+        ),
     ]
 )]
 class Prestation
@@ -283,6 +296,11 @@ class Prestation
         $this->note_generale = $note_generale;
 
         return $this;
+    }
+
+    public function getOwner ()
+    {
+        return $this->getEtablissement()->getPrestataire();
     }
 
 }

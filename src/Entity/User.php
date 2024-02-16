@@ -38,9 +38,9 @@ use App\Filter\MonthUserFilter;
     normalizationContext: ['groups' => ['user:read', 'date:read']],
     denormalizationContext: ['groups' => ['user:write', 'user:write:update', 'date:write']],
     operations: [
-        new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
+        new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read']]),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read', 'demande:read']]),
+        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full']]),
         new Patch(),
         new Delete(),
     ]
@@ -55,7 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read', 'etablissement:read'])]
+    #[Groups(['user:read', 'etablissement:read:private'])]
     private ?int $id = null;
 
     #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
@@ -63,12 +63,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read', 'etablissement:create', 'reservation:read'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read', 'etablissement:create', 'reservation:read'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -76,7 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Groups(['user:read:full', 'user:read', 'user:write', 'user:write:update'])]
+    #[Groups(['user:read:full', 'user:write', 'user:write:update'])]
     #[ORM\Column]
     private ?string $password = null;
 
