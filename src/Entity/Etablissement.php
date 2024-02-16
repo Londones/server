@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
@@ -23,6 +24,8 @@ use App\State\EtablissementProcessor;
 use ApiPlatform\Metadata\Link;
 use App\Filter\GeoLocationFilter;
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use App\Security\Voter\EtablissementVoter;
 
 #[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -32,12 +35,6 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['etablissement:read']],
-            security: "is_granted('ROLE_USER')"
-        ),
-        new GetCollection(
-            uriTemplate: '/etablissementsPrivate',
-            normalizationContext: ['groups' => ['etablissement:read:private']],
-            security: "is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
         new GetCollection(
             uriTemplate: '/filter',
@@ -65,8 +62,7 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
             normalizationContext: ['groups' => ['etablissement:read:public']]
         ),
         new Patch(
-            denormalizationContext: ['groups' => ['etablissement:update']],
-            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
+            denormalizationContext: ['groups' => ['etablissement:update']]
         ),
         new Delete(security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"),
     ]
@@ -85,69 +81,72 @@ class Etablissement
     #[ORM\GeneratedValue]
     #[ORM\Column]
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'search:read', 'prestation:write', 'employe:read', 'prestation:read', 'employe:write', 'employe:update', 'prestation:read'])]
+    #[Groups(['etablissement:read', 'search:read', 'prestation:write', 'employe:read', 'prestation:read', 'employe:write', 'employe:update', 'prestation:read'])]
     private ?int $id = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read', 'employe:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read', 'employe:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 
-    #[Groups(['etablissement:read:private', 'etablissement:update'])]
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')", securityPostDenormalize: "is_granted('ETAB_EDIT', object)")]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
     #[ORM\Column]
     private ?bool $validation = false;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
     #[ORM\Column(length: 1000, name: 'horaires_ouverture')]
     private ?string $horairesOuverture = null;
 
-    #[Groups(['etablissement:read:private', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:create'])]
     #[ORM\ManyToOne(inversedBy: 'etablissement', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[ApiProperty(security: "is_granted('ETAB_VIEW', object) or is_granted('ETAB_EDIT', object)")]
     private ?User $prestataire = null;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Prestation::class)]
-    #[Groups(['etablissement:read:public', 'etablissement:read:private', 'search:read'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read', 'search:read'])]
     private Collection $prestation;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Employe::class)]
-    #[Groups(['etablissement:read:public', 'etablissement:read:private'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read'])]
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: ImageEtablissement::class)]
-    #[Groups(['etablissement:read:public', 'etablissement:read:private'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read'])]
     private ?Collection $imageEtablissements = null;
 
     #[Vich\UploadableField(mapping: 'etablissement', fileNameProperty: 'kbisName')]
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:create'])]
     // #[Assert\File(maxSize: '2M', mimeTypes: ['application/pdf'])]
     private ?File $kbisFile = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private'])]
+    #[Groups(['etablissement:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $kbisName = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $latitude = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $longitude = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $ville = null;
 
-    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $codePostal = null;
 
-    #[Groups(['etablissement:read:private'])]
+    #[Groups(['etablissement:read'])]
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Reservation::class)]
+    #[ApiProperty(security: "is_granted('ETAB_VIEW', object) or is_granted('ETAB_EDIT', object)")]
     private Collection $reservations;
 
     public function __construct()
