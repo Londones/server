@@ -45,15 +45,11 @@ use App\Filter\MonthUserFilter;
         ),
         new Post(),
         new Get(
-            security: "is_granted('ROLE_USER') and object.getOwner() == user",
-            normalizationContext: ['groups' => ['user:read', 'etablissement:read']],
-        ),
-        new Get(
-            security: "is_granted('ROLE_ADMIN')",
-            normalizationContext: ['groups' => ['user:read:full', 'etablissement:read', 'demande:read']]
+            normalizationContext: ['groups' => ['user:read', 'user:read:full']],
+            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
         ),
         new Patch(
-            security: "is_granted('ROLE_USER') and object.getOwner() == user or is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
         ),
         new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
@@ -97,7 +93,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:write', 'user:write:update', 'etablissement:create'])]
     private ?string $plainPassword = null;
 
-    #[ApiProperty(security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('EDIT_USER_ROLES', object)")]
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('EDIT_USER_ROLE', object)")]
     #[Groups(['user:read:full', 'user:write'])]
     #[ORM\Column]
     private array $roles = [];
