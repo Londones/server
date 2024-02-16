@@ -33,10 +33,12 @@ use ApiPlatform\Metadata\Link;
             ],
             normalizationContext: ['groups' => ['reservation:read']]
         ),
-        new Post(),
+        new Post(
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER')",
+        ),
         new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
         new Patch(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') and object.getOwner() == user",
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER') and object.getOwner() == user",
             denormalizationContext: ['groups' => 'reservation:update']
         ),
         new Delete(
