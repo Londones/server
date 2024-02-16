@@ -12,25 +12,55 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Traits\TimestampableTrait;
 use App\Repository\ReservationRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiFilter;
+use App\Filter\MonthFilter;
+use App\Filter\MonthStatusFilter;
+use ApiPlatform\Metadata\Link;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: '`reservation`')]
 #[ApiResource(
+    security: "is_granted('ROLE_USER')",
     normalizationContext: ['groups' => ['reservation:read', 'date:read']],
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
     operations: [
-        new GetCollection(),
-        new Post(),
-        new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
-        new Patch(denormalizationContext: ['groups'=> 'reservation:update']),
-        new Delete(),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new GetCollection(
+            uriTemplate: '/etablissements/{id}/reservations',
+            uriVariables: [
+                'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
+            ],
+            normalizationContext: ['groups' => ['reservation:read']],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+        ),
+        new Post(
+            security: "is_granted('ROLE_PRESTATAIRE')"
+        ),
+        new Get(
+            normalizationContext: ['groups' => 'reservation:read', 'user:read'],
+            security: "objet.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+        ),
+        new Patch(
+            denormalizationContext: ['groups' => 'reservation:update'],
+            security: "object.getOwner() == user"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+        ),
     ]
 )]
+
+#[ApiFilter(MonthFilter::class)]
+#[ApiFilter(MonthStatusFilter::class)]
+
 class Reservation
 {
     // use TimestampableTrait;
-    
+    #[Groups(['reservation:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -66,6 +96,9 @@ class Reservation
     #[Groups(['reservation:read', 'reservation:update', 'reservation:write', 'user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jour = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reservations')]
+    private ?Etablissement $etablissement = null;
 
     public function getId(): ?int
     {
@@ -154,5 +187,27 @@ class Reservation
         $this->jour = $jour;
 
         return $this;
+    }
+
+    public function getEtablissement(): ?Etablissement
+    {
+        return $this->etablissement;
+    }
+
+    public function setEtablissement(?Etablissement $etablissement): static
+    {
+        $this->etablissement = $etablissement;
+
+        return $this;
+    }
+
+    public function getPrestataire()
+    {
+        return $this->getEtablissement()->getPrestataire();
+    }
+
+    public function getOwner()
+    {
+        return $this->client;
     }
 }

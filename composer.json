@@ -7,7 +7,8 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "api-platform/core": "^3.1",
+        "api-platform/core": "^3.2",
+        "beberlei/doctrineextensions": "^1.4",
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "doctrine/doctrine-migrations-bundle": "^3.2",
@@ -18,12 +19,14 @@
         "nelmio/cors-bundle": "^2.3",
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.24",
+        "scienta/doctrine-json-functions": "^5.4",
         "stof/doctrine-extensions-bundle": "^1.9",
         "symfony/apache-pack": "^1.0",
         "symfony/asset": "6.3.*",
         "symfony/console": "6.3.*",
         "symfony/doctrine-messenger": "6.3.*",
         "symfony/expression-language": "6.3.*",
+        "symfony/filesystem": "6.3.*",
         "symfony/flex": "^2",
         "symfony/form": "6.3.*",
         "symfony/framework-bundle": "6.3.*",
@@ -81,6 +84,7 @@
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
+        "test": "vendor/bin/phpunit",
         "post-install-cmd": [
             "@auto-scripts"
         ],
@@ -98,13 +102,14 @@
         }
     },
     "require-dev": {
-        "symfony/dotenv": "6.3.*",
+        "dama/doctrine-test-bundle": "^8.0",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.3.*",
         "symfony/css-selector": "6.3.*",
         "symfony/debug-bundle": "6.3.*",
-        "symfony/maker-bundle": "^1.0",
-        "symfony/phpunit-bridge": "^6.3",
+        "symfony/dotenv": "6.3.*",
+        "symfony/maker-bundle": "^1.53",
+        "symfony/phpunit-bridge": "^7.0",
         "symfony/stopwatch": "6.3.*",
         "symfony/web-profiler-bundle": "6.3.*"
     }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Attribute;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,6 +12,10 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use App\Entity\Traits\TimestampableTrait;
@@ -23,6 +28,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Entity\Etablissement;
+use App\Filter\RoleFilter;
+use App\Filter\MonthUserFilter;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -32,33 +39,45 @@ use App\Entity\Etablissement;
     normalizationContext: ['groups' => ['user:read', 'date:read']],
     denormalizationContext: ['groups' => ['user:write', 'user:write:update', 'date:write']],
     operations: [
-        new GetCollection(normalizationContext: ['groups' => ['user:read', 'date:read', 'etablissement:read']]),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+            normalizationContext: ['groups' => ['user:read:full', 'date:read', 'etablissement:read']]
+        ),
         new Post(),
-        new Get(normalizationContext: ['groups' => ['user:read', 'user:read:full', 'etablissement:read']]),
-        new Patch(),
-        new Delete(),
+        new Get(
+            normalizationContext: ['groups' => ['user:read', 'user:read:full']],
+            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
+#[ApiResource(paginationEnabled: false)]
+#[ApiFilter(RoleFilter::class)]
+#[ApiFilter(MonthUserFilter::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    // use TimestampableTrait;
-    
+    use TimestampableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read', 'etablissement:read'])]
+    #[Groups(['user:read:full', 'etablissement:read:private', 'user:read'])]
     private ?int $id = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
+    #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write'])]
+    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -66,15 +85,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Groups(['user:read:full', 'user:write', 'user:write:update'])]
+    #[Groups(['user:write', 'user:write:update'])]
     #[ORM\Column]
     private ?string $password = null;
 
     #[Length(min: 6)]
-    #[Groups(['user:read:full', 'user:write', 'user:write:update'])]
+    #[Groups(['user:write', 'user:write:update', 'etablissement:create'])]
     private ?string $plainPassword = null;
 
-    #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write'])]
+    #[ApiProperty(security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('EDIT_USER_ROLE', object)")]
+    #[Groups(['user:read:full', 'user:write'])]
     #[ORM\Column]
     private array $roles = [];
 
@@ -105,15 +125,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Feedback::class)]
     private Collection $feedback;
 
-    #[ORM\OneToMany(mappedBy: 'prestataire', targetEntity: DemandePrestataire::class)]
-    private Collection $validationPrestataire;
-
     public function __construct()
     {
         $this->etablissement = new ArrayCollection();
         $this->reservationsClient = new ArrayCollection();
         $this->feedback = new ArrayCollection();
-        $this->validationPrestataire = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,10 +252,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
-
-        if (null !== $imageFile) {
-            $this->updatedAt = new \DateTime();
-        }
     }
 
     public function isEmailVerified(): ?bool
@@ -357,33 +369,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, DemandePrestataire>
-     */
-    public function getValidationPrestataire(): Collection
+    public function getOwner()
     {
-        return $this->validationPrestataire;
-    }
-
-    public function addValidationPrestataire(DemandePrestataire $validationPrestataire): static
-    {
-        if (!$this->validationPrestataire->contains($validationPrestataire)) {
-            $this->validationPrestataire->add($validationPrestataire);
-            $validationPrestataire->setPrestataire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeValidationPrestataire(DemandePrestataire $validationPrestataire): static
-    {
-        if ($this->validationPrestataire->removeElement($validationPrestataire)) {
-            // set the owning side to null (unless already changed)
-            if ($validationPrestataire->getPrestataire() === $this) {
-                $validationPrestataire->setPrestataire(null);
-            }
-        }
-
         return $this;
     }
 }

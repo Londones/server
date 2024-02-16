@@ -17,35 +17,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['category:read', 'date:read']],
+    normalizationContext: ['groups' => ['category:read']],
     denormalizationContext: ['groups' => ['category:write']],
     operations: [
-        new GetCollection(),
-        new Post(),
+        new GetCollection(
+            normalizationContext: ['groups' => ['category:read']],
+        ),
+        new Post(security: "is_granted('ROLE_ADMIN')"),
         new Get(),
-        new Patch(),
-        new Delete(),
+        new Patch(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
 class Category
 {
-    use TimestampableTrait;
+    // use TimestampableTrait;
 
-    #[Groups(['category:read'])]
+    #[Groups(['category:read', 'prestation:read', 'prestation:write'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     // #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
-    #[Groups(['category:read', 'category:write', 'etablissement:read:public'])]
+    #[Groups(['category:read', 'category:write', 'etablissement:read:public', 'prestation:read', 'prestation:write'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
     #[Groups(['category:read'])]
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Prestation::class)]
     private Collection $prestations;
-    
+
     #[Groups(['category:read'])]
     #[ORM\ManyToMany(targetEntity: Critere::class, inversedBy: 'categories')]
     private Collection $criteres;
@@ -127,5 +129,4 @@ class Category
 
         return $this;
     }
-
 }
