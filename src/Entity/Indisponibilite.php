@@ -14,13 +14,22 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: IndisponibiliteRepository::class)]
 #[ApiResource (
+    security: "is_granted('ROLE_USER')",
     normalizationContext: ['groups' => ['indisponibilite:read', 'employe:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['indisponibilite:write'], "enable_max_depth" => "true"],
     operations: [
-        new GetCollection(),
-        new Post(),
-        new Get(),
-        new Delete()
+        new GetCollection(
+            security: "is_granted('ROLE_PRESTATAIRE')",
+        ),
+        new Post(
+            security: "is_granted('ROLE_PRESTATAIRE')",
+        ),
+        new Get(
+            security: "is_granted('ROLE_PRESTATAIRE') or object.getOwner() == user",
+        ),
+        new Delete(
+            security: "is_granted('ROLE_PRESTATAIRE')"
+        )
     ]
 )]
 class Indisponibilite
@@ -89,5 +98,10 @@ class Indisponibilite
         $this->jour = $jour;
 
         return $this;
+    }
+
+    public function getOwner ()
+    {
+        return $this->getEmploye()->getEtablissement()->getPrestataire();
     }
 }

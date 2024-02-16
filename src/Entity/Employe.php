@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
@@ -21,20 +22,29 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
 #[ApiResource(
+    security: "is_granted('ROLE_PRESTATAIRE')",
     normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth"=>"true"],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
-        new GetCollection(normalizationContext:["enable_max_depth" => "true"]),
+        new GetCollection(
+            normalizationContext:["enable_max_depth" => "true"],
+            security: "is_granted('ROLE_ADMIN')"
+        ),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/employes',
             uriVariables: [
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
-            normalizationContext: ['groups' => ['employe:read']]
+            normalizationContext: ['groups' => ['employe:read']],
+            security: "object.getOwner() == user"
         ),
         new Post(denormalizationContext: ['groups' => ['employe:write', 'reservation:write']]),
-        new Get(normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"]),
+        new Get(
+            normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth"=>"true"],
+            security: "object.getOwner() == user"
+        ),
         new Patch(denormalizationContext: ['groups' => ['employe:update']]),
+        new Delete(security: "object.getOwner() == user")
     ]
 )]
 class Employe
@@ -281,5 +291,10 @@ class Employe
         }
 
         return $this;
+    }
+
+    public function getOwner()
+    {
+        return $this->getEtablissement()->getPrestataire();
     }
 }

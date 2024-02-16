@@ -30,7 +30,15 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
     normalizationContext: ['groups' => 'etablissement:read',  'search:read'],
     denormalizationContext: ['groups' => 'etablissement:write'],
     operations: [
-        new GetCollection(normalizationContext: ['groups' => ['etablissement:read']]),
+        new GetCollection(
+            normalizationContext: ['groups' => ['etablissement:read']],
+            security: "is_granted('ROLE_USER')"
+        ),
+        new GetCollection(
+            uriTemplate: '/etablissementsPrivate',
+            normalizationContext: ['groups' => ['etablissement:read:private']],
+            security: "is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
+        ),
         new GetCollection(
             uriTemplate: '/filter',
             normalizationContext: ['groups' => ['search:read']]
@@ -40,19 +48,27 @@ use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
             uriVariables: [
                 'id' => new Link(fromClass: User::class, fromProperty: 'id', toProperty: 'prestataire')
             ],
-            normalizationContext: ['groups' => ['etablissement:read']]
+            normalizationContext: ['groups' => ['etablissement:read']],
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"
         ),
         new Post(
             denormalizationContext: ['groups' => ['etablissement:create']],
-            inputFormats: ['multipart' => ['multipart/form-data']]
+            inputFormats: ['multipart' => ['multipart/form-data']],
+            security: "is_granted('ROLE_PRESTATAIRE')"
         ),
-        new Get(normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']]),
+        new Get(
+            normalizationContext: ['groups' => ['etablissement:read', 'etablissement:read:public']],
+            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
+        ),
         new Get(
             uriTemplate: '/public/etablissementPublic/{id}',
             normalizationContext: ['groups' => ['etablissement:read:public']]
         ),
-        new Patch(denormalizationContext: ['groups' => ['etablissement:update']]),
-        new Delete(),
+        new Patch(
+            denormalizationContext: ['groups' => ['etablissement:update']],
+            security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
+        ),
+        new Delete(security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"),
     ]
 )]
 
@@ -69,67 +85,68 @@ class Etablissement
     #[ORM\GeneratedValue]
     #[ORM\Column]
 
-    #[Groups(['etablissement:read', 'search:read', 'prestation:write', 'employe:read', 'prestation:read', 'employe:write', 'employ:read', 'employe:update', 'prestation:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'search:read', 'prestation:write', 'employe:read', 'prestation:read', 'employe:write', 'employe:update', 'prestation:read'])]
     private ?int $id = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read', 'employe:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'etablissement:update', 'etablissement:read:public', 'search:read', 'prestation:read', 'employe:read'])]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:update', 'etablissement:create', 'etablissement:read:public', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $adresse = null;
 
-    #[Groups(['etablissement:read', 'etablissement:update'])]
+    #[Groups(['etablissement:read:private', 'etablissement:update'])]
     #[ORM\Column]
     private ?bool $validation = false;
 
-    #[Groups(['etablissement:read', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:update', 'etablissement:create', 'etablissement:read:public'])]
     #[ORM\Column(length: 1000, name: 'horaires_ouverture')]
     private ?string $horairesOuverture = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create'])]
+    #[Groups(['etablissement:read:private', 'etablissement:create'])]
     #[ORM\ManyToOne(inversedBy: 'etablissement', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $prestataire = null;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Prestation::class)]
-    #[Groups(['etablissement:read:public', 'search:read'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read:private', 'search:read'])]
     private Collection $prestation;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Employe::class)]
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read:private'])]
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: ImageEtablissement::class)]
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read:private'])]
     private ?Collection $imageEtablissements = null;
 
     #[Vich\UploadableField(mapping: 'etablissement', fileNameProperty: 'kbisName')]
-    #[Groups(['etablissement:read', 'etablissement:create'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create'])]
     // #[Assert\File(maxSize: '2M', mimeTypes: ['application/pdf'])]
     private ?File $kbisFile = null;
 
-    #[Groups(['etablissement:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $kbisName = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $latitude = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $longitude = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $ville = null;
 
-    #[Groups(['etablissement:read', 'etablissement:create', 'search:read'])]
+    #[Groups(['etablissement:read', 'etablissement:read:private', 'etablissement:create', 'search:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $codePostal = null;
 
+    #[Groups(['etablissement:read:private'])]
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Reservation::class)]
     private Collection $reservations;
 
@@ -396,5 +413,10 @@ class Etablissement
         }
 
         return $this;
+    }
+
+    public function getOwner()
+    {
+        return $this->prestataire;
     }
 }
