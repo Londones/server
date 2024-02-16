@@ -1,0 +1,78 @@
+name: PHP Composer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services: 
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+          
+    steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+    - uses: actions/checkout@v3
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+      env: 
+        DATABASE_URL: pgsql://postgres:postgres@127.0.0.1:5432/test_db
+
+    - name: Setup test database
+      run: |
+        php bin/console doctrine:database:create --env=test
+        php bin/console doctrine:schema:update --force --env=test
+        echo "${{ secrets.JWT_SECRET_KEY }}" > /tmp/jwt_secret_key
+        echo "${{ secrets.JWT_PUBLIC_KEY }}" > /tmp/jwt_public_key
+        php bin/console lexik:jwt:generate-keypair --overwrite
+      env:
+        DATABASE_URL: "pgsql://postgres:postgres@127.0.0.1:5432/test_db"
+        MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
+        JWT_SECRET_KEY: /tmp/jwt_secret_key
+        JWT_PUBLIC_KEY: /tmp/jwt_public_key
+        JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+
+    - name: Run test suite
+      run: composer run-script test
+      env:
+        KERNEL_CLASS: 'App\Kernel'
+        APP_SECRET: ${{ secrets.APP_SECRET }}
+        MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
+        CORS_ALLOW_ORIGIN: '^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
+        ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+        JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+        JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+        MAILER_DSN: ${{ secrets.MAILER_DSN }}
+        SYMFONY_DEPRECATIONS_HELPER: disabled
+        DATABASE_URL: pgsql://postgres:postgres@127.0.0.1:5432/test_db
