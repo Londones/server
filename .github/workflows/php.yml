@@ -49,7 +49,7 @@ jobs:
         DATABASE_URL: pgsql://postgres:postgres@127.0.0.1:5432/test_db
 
     - name: Setup test database
-      run: /
+      run: |
         php bin/console doctrine:database:create --env=test
         php bin/console doctrine:schema:update --force --env=test
 
