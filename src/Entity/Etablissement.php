@@ -49,7 +49,6 @@ use App\Security\Voter\EtablissementVoter;
             security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"
         ),
         new Post(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
             denormalizationContext: ['groups' => ['etablissement:create']],
             inputFormats: ['multipart' => ['multipart/form-data']],
         ),
