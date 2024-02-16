@@ -120,7 +120,7 @@ class Etablissement
 
     #[Vich\UploadableField(mapping: 'etablissement', fileNameProperty: 'kbisName')]
     #[Groups(['etablissement:read', 'etablissement:create'])]
-    // #[Assert\File(maxSize: '2M', mimeTypes: ['application/pdf'])]
+    #[Assert\File(maxSize: '5M', mimeTypes: ['application/pdf'])]
     private ?File $kbisFile = null;
 
     #[Groups(['etablissement:read'])]
