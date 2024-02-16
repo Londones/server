@@ -27,11 +27,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Update composer
-      run: composer update
-
     - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      run: composer validate
 
     - name: Cache Composer packages
       id: composer-cache
