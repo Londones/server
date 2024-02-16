@@ -59,6 +59,7 @@ jobs:
     - name: Run test suite
       run: composer run-script test
       env:
+        KERNEL_CLASS: 'App\Kernel'
         APP_SECRET: ${{ secrets.APP_SECRET }}
         MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
         CORS_ALLOW_ORIGIN: '^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
