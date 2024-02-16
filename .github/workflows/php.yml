@@ -69,3 +69,4 @@ jobs:
         JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
         MAILER_DSN: ${{ secrets.MAILER_DSN }}
         SYMFONY_DEPRECATIONS_HELPER: disabled
+        DATABASE_URL: pgsql://postgres:postgres@127.0.0.1:5432/test_db
