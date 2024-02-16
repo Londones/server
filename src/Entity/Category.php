@@ -20,11 +20,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['category:read']],
     denormalizationContext: ['groups' => ['category:write']],
     operations: [
-        new GetCollection(normalizationContext: ['groups' => ['category:read']]),
-        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
+        new GetCollection(
+            normalizationContext: ['groups' => ['category:read']],
+        ),
+        new Post(security: "is_granted('ROLE_ADMIN')"),
         new Get(),
-        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
-        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
+        new Patch(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
 class Category

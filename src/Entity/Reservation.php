@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Traits\TimestampableTrait;
 use App\Repository\ReservationRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Filter\MonthFilter;
@@ -25,21 +26,27 @@ use ApiPlatform\Metadata\Link;
     normalizationContext: ['groups' => ['reservation:read', 'date:read']],
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/reservations',
             uriVariables: [
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
-            normalizationContext: ['groups' => ['reservation:read']]
+            normalizationContext: ['groups' => ['reservation:read']],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
         ),
         new Post(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_PRESTATAIRE')"
         ),
-        new Get(normalizationContext: ['groups' => 'reservation:read', 'user:read']),
+        new Get(
+            normalizationContext: ['groups' => 'reservation:read', 'user:read'],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+        ),
         new Patch(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER') and object.getOwner() == user",
-            denormalizationContext: ['groups' => 'reservation:update']
+            denormalizationContext: ['groups'=> 'reservation:update'],
+            security: "object.getOwner() == user"
         ),
         new Delete(
             security: "object.getOwner() == user"
@@ -194,8 +201,19 @@ class Reservation
         return $this;
     }
 
+<<<<<<< HEAD
     public function getOwner(): ?User
     {
         return $this->client;
+=======
+    public function getPrestataire()
+    {
+        return $this->getEtablissement()->getPrestataire();
+    }
+
+    public function getOwner()
+    {
+        return $this->getClient();
+>>>>>>> fix/secu
     }
 }

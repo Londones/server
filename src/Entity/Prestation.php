@@ -28,21 +28,31 @@ use ApiPlatform\Metadata\Link;
     normalizationContext: ['groups' => ['prestation:read', 'date:read', 'etablissement:read:public', 'search:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['prestation:write', 'date:write', "prestation:update"]],
     operations: [
-        new GetCollection(normalizationContext: ['groups' => ['prestation:read', 'prestation:read:is-logged']]),
+        new GetCollection(
+            normalizationContext: ['groups' => ['prestation:read', 'prestation:read:is-logged']],
+        ),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/prestations',
             uriVariables: [
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
-            normalizationContext: ['groups' => ['prestation:read']]
+            normalizationContext: ['groups' => ['prestation:read']],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
         ),
-        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
-        new Get(normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth" => "true"]),
+        new Post(
+            security: "is_granted('ROLE_PRESTATAIRE')"
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth" => "true"],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+        ),
         new Patch(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')",
-            denormalizationContext: ['groups' => ['prestation:update']]
+            denormalizationContext: ['groups' => ['prestation:update']],
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
         ),
-        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_PRESTATAIRE')"),
+        new Delete(
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+        ),
     ]
 )]
 class Prestation
