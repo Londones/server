@@ -35,25 +35,25 @@ use ApiPlatform\Metadata\Link;
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
             normalizationContext: ['groups' => ['reservation:read']],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
         new Post(
-            security: "is_granted('ROLE_PRESTATAIRE')"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE')",
+            normalizationContext: ['groups' => 'reservation:read', 'user:read']
         ),
         new Get(
             normalizationContext: ['groups' => 'reservation:read', 'user:read'],
-            security: "objet.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
         new Patch(
             denormalizationContext: ['groups' => 'reservation:update'],
-            security: "object.getOwner() == user"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
         new Delete(
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
     ]
 )]
-
 #[ApiFilter(MonthFilter::class)]
 #[ApiFilter(MonthStatusFilter::class)]
 

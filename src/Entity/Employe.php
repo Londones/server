@@ -22,13 +22,13 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 #[Vich\Uploadable]
 #[ApiResource(
-    security: "is_granted('ROLE_PRESTATAIRE')",
+    security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
     normalizationContext: ['groups' => ['employe:read', 'date:read', 'etablissement:read:public', 'prestation:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['employe:write', 'date:write']],
     operations: [
         new GetCollection(
             normalizationContext: ["enable_max_depth" => "true"],
-            security: "is_granted('ROLE_ADMIN')"
+            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/employes',
@@ -36,15 +36,23 @@ use ApiPlatform\Metadata\Link;
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
             normalizationContext: ['groups' => ['employe:read']],
-            security: "object.getOwner() == user"
+            security: "is_granted('ROLE_USER') or object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
-        new Post(denormalizationContext: ['groups' => ['employe:write', 'reservation:write']]),
+        new Post(
+            denormalizationContext: ['groups' => ['employe:write', 'reservation:write']],
+            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
+        ),
         new Get(
             normalizationContext: ['groups' => ['employe:read', 'employe:read:full', 'etablissement:read:public', 'prestation:read', 'reservation:read'], "enable_max_depth" => "true"],
-            security: "object.getOwner() == user"
+            security: "is_granted('ROLE_USER') or object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
-        new Patch(denormalizationContext: ['groups' => ['employe:update']]),
-        new Delete(security: "object.getOwner() == user")
+        new Patch(
+            denormalizationContext: ['groups' => ['employe:update']],
+            security: "is_granted('ROLE_USER') or object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_USER') or object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
+        )
     ]
 )]
 class Employe
@@ -111,7 +119,6 @@ class Employe
     #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'employe', targetEntity: Indisponibilite::class)]
     private Collection $indisponibilites;
-
 
     public function __construct()
     {

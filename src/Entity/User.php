@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Attribute;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,50 +10,47 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Common\Filter\SearchFilterInterface;
 use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Delete;
-use App\Entity\Traits\TimestampableTrait;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints\Length;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Entity\Etablissement;
 use App\Filter\RoleFilter;
 use App\Filter\MonthUserFilter;
+use App\Entity\Traits\TimestampableTrait;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email'], message: 'Un compte existe déjà avec cet email')]
 #[Vich\Uploadable]
 #[ApiResource(
-    normalizationContext: ['groups' => ['user:read', 'date:read']],
-    denormalizationContext: ['groups' => ['user:write', 'user:write:update', 'date:write']],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
     operations: [
         new GetCollection(
-            security: "is_granted('ROLE_ADMIN')",
-            normalizationContext: ['groups' => ['user:read:full', 'date:read', 'etablissement:read']]
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
+            normalizationContext: ['groups' => ['user:read']]
         ),
-        new Post(),
         new Get(
-            normalizationContext: ['groups' => ['user:read', 'user:read:full']],
+            normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
         ),
+        new Post(),
         new Patch(
             security: "is_granted('ROLE_ADMIN') or object.getOwner() == user"
         ),
         new Delete(security: "is_granted('ROLE_ADMIN')"),
     ]
 )]
-#[ApiResource(paginationEnabled: false)]
 #[ApiFilter(RoleFilter::class)]
 #[ApiFilter(MonthUserFilter::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -64,20 +60,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read:full', 'etablissement:read:private', 'user:read'])]
+    #[Groups(['user:read', 'user:read:owner', 'user:read:full'])]
     private ?int $id = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
+    #[Groups(['user:read', 'user:read:owner', 'user:read:full'])]
     #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
+    #[Groups(['user:read', 'user:read:owner', 'user:read:full'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
+    #[Groups(['user:read', 'user:read:owner', 'user:read:full'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -89,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[Length(min: 6)]
+    #[Assert\Length(min: 6)]
     #[Groups(['user:write', 'user:write:update', 'etablissement:create'])]
     private ?string $plainPassword = null;
 
@@ -145,7 +141,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -157,7 +152,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNom(?string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -169,7 +163,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPrenom(?string $prenom): static
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -193,34 +186,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->plainPassword = $plainPassword;
         $this->password = $plainPassword;
-
         return $this;
     }
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
+
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-
         return $this;
     }
 
@@ -229,14 +212,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->imageName;
     }
 
-    /**
-     * @param string|null $imageName
-     * @return User
-     */
     public function setImageName(?string $imageName): User
     {
         $this->imageName = $imageName;
-
         return $this;
     }
 
@@ -245,13 +223,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->imageFile;
     }
 
-    /**
-     * @param mixed $imageFile
-     * @return User
-     */
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
+        if ($imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
     }
 
     public function isEmailVerified(): ?bool
@@ -262,21 +239,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmailVerified(bool $emailVerified): static
     {
         $this->emailVerified = $emailVerified;
-
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials()
     {
         $this->plainPassword = null;
     }
 
-    /**
-     * @return Collection<int, Etablissement>
-     */
     public function getEtablissement(): Collection
     {
         return $this->etablissement;
@@ -288,30 +258,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->etablissement->add($etablissement);
             $etablissement->setPrestataire($this);
         }
-
         return $this;
     }
 
     public function removeEtablissement(Etablissement $etablissement): static
     {
         if ($this->etablissement->removeElement($etablissement)) {
-            // set the owning side to null (unless already changed)
             if ($etablissement->getPrestataire() === $this) {
                 $etablissement->setPrestataire(null);
             }
         }
-
         return $this;
     }
 
-    public function hasRole($role)
+    public function hasRole(string $role): bool
     {
-        return in_array($role, $this->roles);
+        return in_array($role, $this->roles, true);
     }
 
-    /**
-     * @return Collection<int, Reservation>
-     */
     public function getReservationsClient(): Collection
     {
         return $this->reservationsClient;
@@ -323,25 +287,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->reservationsClient->add($reservationsClient);
             $reservationsClient->setClient($this);
         }
-
         return $this;
     }
 
     public function removeReservationsClient(Reservation $reservationsClient): static
     {
         if ($this->reservationsClient->removeElement($reservationsClient)) {
-            // set the owning side to null (unless already changed)
             if ($reservationsClient->getClient() === $this) {
                 $reservationsClient->setClient(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Feedback>
-     */
     public function getFeedback(): Collection
     {
         return $this->feedback;
@@ -353,23 +311,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->feedback->add($feedback);
             $feedback->setClient($this);
         }
-
         return $this;
     }
 
     public function removeFeedback(Feedback $feedback): static
     {
         if ($this->feedback->removeElement($feedback)) {
-            // set the owning side to null (unless already changed)
             if ($feedback->getClient() === $this) {
                 $feedback->setClient(null);
             }
         }
-
         return $this;
     }
 
-    public function getOwner()
+    public function getOwner(): ?UserInterface
     {
         return $this;
     }
