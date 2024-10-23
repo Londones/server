@@ -8,9 +8,14 @@ api_platform:
       vary: ["Content-Type", "Authorization", "Origin"]
     extra_properties:
       standard_put: true
+  
+  eager_loading:
+    max_joins: 200
 
   swagger:
     api_keys:
       JWT:
         name: Authorization
         type: header
+
+

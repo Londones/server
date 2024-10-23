@@ -13,26 +13,23 @@ use ApiPlatform\Metadata\Get;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: IndisponibiliteRepository::class)]
-#[ApiResource(
-    security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
+#[ApiResource (
+    security: "is_granted('ROLE_USER')",
     normalizationContext: ['groups' => ['indisponibilite:read', 'employe:read'], "enable_max_depth" => "true"],
     denormalizationContext: ['groups' => ['indisponibilite:write'], "enable_max_depth" => "true"],
     operations: [
         new GetCollection(
-            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_PRESTATAIRE')",
         ),
         new Post(
-            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_PRESTATAIRE')",
         ),
         new Get(
-            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
-        ),
-        new Patch(
-            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
+            security: "is_granted('ROLE_PRESTATAIRE') or object.getOwner() == user",
         ),
         new Delete(
-            security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')",
-        ),
+            security: "is_granted('ROLE_PRESTATAIRE')"
+        )
     ]
 )]
 class Indisponibilite
@@ -47,7 +44,7 @@ class Indisponibilite
     #[ORM\ManyToOne(inversedBy: 'indisponibilites')]
     private ?Employe $employe = null;
 
-    #[Groups(['indisponibilite:read', 'employe:read', 'indisponibilite:write'])]
+    #[Groups(['indisponibilite:read', 'employe:read', 'indisponibilite:write', ])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $creneau = null;
 
@@ -103,7 +100,7 @@ class Indisponibilite
         return $this;
     }
 
-    public function getOwner()
+    public function getOwner ()
     {
         return $this->getEmploye()->getEtablissement()->getPrestataire();
     }
