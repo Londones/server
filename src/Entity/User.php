@@ -26,6 +26,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Entity\Etablissement;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use App\Filter\RoleFilter;
 use App\Filter\MonthUserFilter;
 
@@ -115,10 +116,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(['user:read', 'reservations:read'])]
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Reservation::class)]
+    #[MaxDepth(1)]
     private Collection $reservationsClient;
 
     #[Groups(['user:read', 'feedback:read'])]
-    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Feedback::class)]
+    #[MaxDepth(1)]
+        #[ORM\OneToMany(mappedBy: 'client', targetEntity: Feedback::class)]
     private Collection $feedback;
 
     public function __construct()
