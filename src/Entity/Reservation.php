@@ -14,6 +14,7 @@ use App\Entity\Traits\TimestampableTrait;
 use App\Repository\ReservationRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Filter\MonthFilter;
 use App\Filter\MonthStatusFilter;
@@ -35,48 +36,49 @@ use ApiPlatform\Metadata\Link;
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
             normalizationContext: ['groups' => ['reservation:read']],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
         new Post(
-            security: "is_granted('ROLE_PRESTATAIRE')"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE')",
+            normalizationContext: ['groups' => 'reservation:read', 'user:read']
         ),
         new Get(
             normalizationContext: ['groups' => 'reservation:read', 'user:read'],
-            security: "objet.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
         new Patch(
             denormalizationContext: ['groups' => 'reservation:update'],
-            security: "object.getOwner() == user"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
         new Delete(
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
         ),
     ]
 )]
-
 #[ApiFilter(MonthFilter::class)]
 #[ApiFilter(MonthStatusFilter::class)]
-
 class Reservation
 {
-    // use TimestampableTrait;
-    #[Groups(['reservation:read'])]
+    #[Groups(['reservation:read', 'prestation:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[Groups(['reservation:read', 'reservation:write'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'reservationsClient')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
     #[Groups(['reservation:read', 'reservation:write', 'user:read'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Prestation $prestation = null;
 
     #[Groups(['reservation:read', 'reservation:write', 'user:read'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'reservationsEmploye')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Employe $employe = null;
@@ -97,9 +99,13 @@ class Reservation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jour = null;
 
+    #[Groups(['reservation:read'])]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     private ?Etablissement $etablissement = null;
 
+    // Méthode pour obtenir l'ID
+    #[Groups(['reservation:read'])]
     public function getId(): ?int
     {
         return $this->id;

@@ -30,6 +30,7 @@ use ApiPlatform\Metadata\Link;
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => ['prestation:read', 'prestation:read:is-logged']],
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
         ),
         new GetCollection(
             uriTemplate: '/etablissements/{id}/prestations',
@@ -37,21 +38,21 @@ use ApiPlatform\Metadata\Link;
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
             normalizationContext: ['groups' => ['prestation:read']],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
         ),
         new Post(
-            security: "is_granted('ROLE_PRESTATAIRE')"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
         ),
         new Get(
             normalizationContext: ['groups' => ['etablissement:read:public', 'prestation:read', 'user:read', 'prestation:read:is-logged'], "enable_max_depth" => "true"],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
         ),
         new Patch(
             denormalizationContext: ['groups' => ['prestation:update']],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
         ),
         new Delete(
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getOwner() == user"
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER')",
         ),
     ]
 )]
@@ -96,7 +97,6 @@ class Prestation
     #[MaxDepth(1)]
     private ?Etablissement $etablissement = null;
 
-    // #[Groups(['prestation:read'])]
     #[ORM\ManyToMany(targetEntity: Employe::class, mappedBy: 'prestation')]
     #[MaxDepth(1)]
     private Collection $employes;
@@ -247,7 +247,6 @@ class Prestation
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation)) {
-            // set the owning side to null (unless already changed)
             if ($reservation->getPrestation() === $this) {
                 $reservation->setPrestation(null);
             }
@@ -277,7 +276,6 @@ class Prestation
     public function removeFeedback(Feedback $feedback): static
     {
         if ($this->feedback->removeElement($feedback)) {
-            // set the owning side to null (unless already changed)
             if ($feedback->getPrestation() === $this) {
                 $feedback->setPrestation(null);
             }
