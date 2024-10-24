@@ -67,17 +67,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read:full', 'etablissement:read:private', 'user:read'])]
     private ?int $id = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'etablissement:create'])]
+    #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write', 'etablissement:create'])]
     #[ApiFilter(SearchFilter::class, strategy: SearchFilterInterface::STRATEGY_EXACT)]
     #[ORM\Column(length: 255, unique: true)]
     private ?string $email = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
+    #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[Groups(['user:read', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
+    #[Groups(['user:read', 'user:read:full', 'user:write:update', 'user:write', 'demande:read', 'etablissement:read', 'etablissement:read:private', 'etablissement:create', 'reservation:read'])]
     #[Assert\Length(min: 2)]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
@@ -85,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Groups(['user:write', 'user:write:update'])]
+    #[Groups(['user:write', 'user:read', 'user:read:full', 'user:write:update'])]
     #[ORM\Column]
     private ?string $password = null;
 
@@ -94,7 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $plainPassword = null;
 
     #[ApiProperty(security: "is_granted('ROLE_ADMIN')", securityPostDenormalize: "is_granted('EDIT_USER_ROLE', object)")]
-    #[Groups(['user:read:full', 'user:write'])]
+    #[Groups(['user:read', 'user:read:full', 'user:write'])]
     #[ORM\Column]
     private array $roles = [];
 
