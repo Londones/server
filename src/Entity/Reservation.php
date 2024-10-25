@@ -23,7 +23,7 @@ use ApiPlatform\Metadata\Link;
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: '`reservation`')]
 #[ApiResource(
-    security: "is_granted('ROLE_USER')",
+    security: "is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE')",
     normalizationContext: ['groups' => ['reservation:read', 'date:read']],
     denormalizationContext: ['groups' => ['reservation:write', 'date:write']],
     operations: [
@@ -36,7 +36,7 @@ use ApiPlatform\Metadata\Link;
                 'id' => new Link(fromClass: Etablissement::class, fromProperty: 'id', toProperty: 'etablissement')
             ],
             normalizationContext: ['groups' => ['reservation:read']],
-            security: "is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
+            security: "is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
         new Post(
             security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_USER') or is_granted('ROLE_PRESTATAIRE')",
@@ -44,14 +44,14 @@ use ApiPlatform\Metadata\Link;
         ),
         new Get(
             normalizationContext: ['groups' => 'reservation:read', 'user:read'],
-            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
         new Patch(
             denormalizationContext: ['groups' => 'reservation:update'],
-            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
         new Delete(
-            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') and object.getPrestataire() == user or is_granted('ROLE_ADMIN')"
+            security: "object.getOwner() == user or is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_ADMIN')"
         ),
     ]
 )]
