@@ -99,7 +99,7 @@ class Reservation
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jour = null;
 
-    #[Groups(['reservation:read'])]
+    #[Groups(['reservation:read', "reservation:write"])]
     #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     private ?Etablissement $etablissement = null;
