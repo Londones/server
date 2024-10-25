@@ -100,7 +100,7 @@ class Indisponibilite
         return $this;
     }
 
-    public function getOwner ()
+    public function getOwner (): ?User
     {
         return $this->getEmploye()->getEtablissement()->getPrestataire();
     }

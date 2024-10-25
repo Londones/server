@@ -51,6 +51,7 @@ use App\Security\Voter\EtablissementVoter;
         new Post(
             denormalizationContext: ['groups' => ['etablissement:create']],
             inputFormats: ['multipart' => ['multipart/form-data']],
+            security: "is_granted('ETAB_CREATE', _api_resource_class)"
         ),
         new Get(
             normalizationContext: ['groups' => ['etablissement:read']],
@@ -103,7 +104,6 @@ class Etablissement
     #[Groups(['etablissement:read', 'etablissement:create'])]
     #[ORM\ManyToOne(inversedBy: 'etablissement', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
-    #[ApiProperty(security: "is_granted('ETAB_VIEW', object) or is_granted('ETAB_EDIT', object)")]
     private ?User $prestataire = null;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: Prestation::class)]
@@ -413,7 +413,7 @@ class Etablissement
         return $this;
     }
 
-    public function getOwner()
+    public function getOwner(): ?User
     {
         return $this->prestataire;
     }

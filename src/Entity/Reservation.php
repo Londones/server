@@ -212,7 +212,7 @@ class Reservation
         return $this->getEtablissement()->getPrestataire();
     }
 
-    public function getOwner()
+    public function getOwner(): ?User
     {
         return $this->client;
     }
