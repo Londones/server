@@ -22,13 +22,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
             security: "is_granted('ROLE_PRESTATAIRE')",
         ),
         new Post(
-            security: "is_granted('ROLE_PRESTATAIRE')",
+            security: "is_granted('ROLE_PRESTATAIRE') or is_granted('ROLE_USER')",
         ),
         new Get(
             security: "is_granted('ROLE_PRESTATAIRE') or object.getOwner() == user",
         ),
+        new Patch(
+            security: "is_granted('ROLE_PRESTATAIRE') or object.getOwner() == user",
+        ),
         new Delete(
-            security: "is_granted('ROLE_PRESTATAIRE')"
+            security: "is_granted('ROLE_PRESTATAIRE') or object.getOwner() == user", 
         )
     ]
 )]
