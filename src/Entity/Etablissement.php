@@ -115,7 +115,7 @@ class Etablissement
     private Collection $employes;
 
     #[ORM\OneToMany(mappedBy: 'etablissement', targetEntity: ImageEtablissement::class)]
-    #[Groups(['etablissement:read:public', 'etablissement:read'])]
+    #[Groups(['etablissement:read:public', 'etablissement:read', "search:read"])]
     private ?Collection $imageEtablissements = null;
 
     #[Vich\UploadableField(mapping: 'etablissement', fileNameProperty: 'kbisName')]

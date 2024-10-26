@@ -22,7 +22,7 @@ class ImageEtablissement
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:read:public', "search:read"])]
     private ?string $imageName = null;
 
     #[Vich\UploadableField(mapping: 'etablissement_images', fileNameProperty: 'imageName')]
@@ -32,7 +32,7 @@ class ImageEtablissement
         maxSizeMessage: 'Votre fichier fait {{ size }} et ne doit pas dépasser {{ limit }}',
         mimeTypesMessage: 'Format accepté : png/jpeg'
     )]
-    #[Groups(['etablissement:read:public'])]
+    #[Groups(['etablissement:read', 'etablissement:read:public', "search:read"])]
     private ?File $imageFile = null;
 
     #[ORM\ManyToOne(inversedBy: 'imageEtablissements')]
